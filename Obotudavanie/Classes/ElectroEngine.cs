@@ -13,6 +13,7 @@
             Power = new Attribute<double> { DefValue = 0, EdIzm = "кВ (6, 10)", Name = "Мощность", Type = "Вещественное", Value = 0 };
             Voltage = new Attribute<double> { DefValue = 0, EdIzm = "кВА", Name = "Напряжение", Type = "Вещественное", Value = 0 };
             FactoryNumber = new Attribute<string> { DefValue = "", EdIzm = "КГ/ч", Name = "Заводской номер", Type = "Текст", Value = "" };
+            ShifrByCalssificator_OsnovnSredstva.Value = 40251;
         }
 
 

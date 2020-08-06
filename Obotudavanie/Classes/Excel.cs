@@ -58,12 +58,8 @@ namespace Obotudavanie.Classes
                 var reader = ExcelReaderFactory.CreateReader(stream);
                 dsOborudovanieInfo = reader.AsDataSet(new ExcelDataSetConfiguration()
                 {
-                    // Gets or sets a callback to obtain configuration options for a DataTable. 
                     ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration()
                     {
-
-                        // Gets or sets a value indicating whether to use a row from the 
-                        // data as column names.
                         UseHeaderRow = true,                    
                     }
                 });
@@ -87,17 +83,6 @@ namespace Obotudavanie.Classes
                 FactoryNumber = new Attribute<string> { DefValue = "", EdIzm = "КГ/ч", Name = "Шифр основного средства по классификатору", Type = "Текст", Value = Convert.ToString(s["Шифр основного средства по классификатору"]) }
 
             }).ToList();
-
-            //for (int i = 0; i < dsOborudovanieInfoList.Count; i++)
-            //{
-            //    cmbox_dataSelection.Items.Add(dsOborudovanieInfoList[i].InvNum_OsnovnSredstva.Value.ToString() + "  " + dsOborudovanieInfoList[i].Name_OsnovnSredstva.Value.ToString());
-            //}
-
-            //textBox1.Text += "\n\n" + "Наименование:  " + dsOborudovanieInfoList[j].Name_OsnovnSredstva.Name.ToString() + "\n"
-            //       + "Тип:  " + dsOborudovanieInfoList[j].Name_OsnovnSredstva.Type.ToString() + "\n"
-            //       + "Единица измерения:  " + dsOborudovanieInfoList[j].Name_OsnovnSredstva.EdIzm.ToString() + "\n"
-            //       + "Значение:  " + dsOborudovanieInfoList[j].Name_OsnovnSredstva.Value.ToString() + "\n"
-            //       + "Материально-ответственное лицо:  " + dsOborudovanieInfoList[j].MatOtv_Person.Value.ToString() + "\n";
 
             return dsOborudovanieInfoList;
         }

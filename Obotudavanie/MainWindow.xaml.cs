@@ -87,24 +87,18 @@ namespace Obotudavanie
             if (browsefile == true)
             {
                 path = openfile.FileName;
-                Microsoft.Office.Interop.Excel.Application excelApp = new Microsoft.Office.Interop.Excel.Application();
-                Microsoft.Office.Interop.Excel.Workbook excelBook = excelApp.Workbooks.Open(path.ToString(), 0, true, 3, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
-
-                int sheetscount = excelBook.Sheets.Count; // подсчет количества листов
-                Microsoft.Office.Interop.Excel.Worksheet excelSheet = (Microsoft.Office.Interop.Excel.Worksheet)excelBook.Worksheets.get_Item(1);
-
-                excelBook.Close(true, null, null);
-                excelApp.Quit();
+                IList<ElectroEngine> objExcelCon = excel.ReadExcel(path);
+                foreach (var obj in objExcelCon)
+                {
+                    bool containsItem = LoadedOborud.Any(item => item.InvNum_OsnovnSredstva.Value == obj.InvNum_OsnovnSredstva.Value);
+                    if (!containsItem)
+                    {
+                        LoadedOborud.Add(obj);
+                    }
+                }
+                UpdateOborList();
             }
 
-            IList<ElectroEngine> objExcelCon =  excel.ReadExcel(path);
-            //Dictionary<int, string> spisok = new Dictionary<int, string>();
-            //for (int i = 0; i < excel.dsOborudovanieInfoList.Count; i++)
-            //{
-            //    spisok.Add(excel.dsOborudovanieInfoList[i].InvNum_OsnovnSredstva.Value, excel.dsOborudovanieInfoList[i].Name_OsnovnSredstva.Value.ToString());
-            //}
-            //ListGrid.ItemsSource = spisok;
-            foreach (var obj in objExcelCon)
         }
 
         private void btn_GetData_Click(object sender, RoutedEventArgs e)
@@ -189,6 +183,7 @@ namespace Obotudavanie
 
         private void UpdateOborList()
         {
+            OborList = new Dictionary<int, string>();
             for (int i = 0; i < LoadedOborud.Count; i++)
             {
                 OborList.Add(LoadedOborud[i].InvNum_OsnovnSredstva.Value, LoadedOborud[i].Name_OsnovnSredstva.Value.ToString());
