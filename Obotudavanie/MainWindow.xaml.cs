@@ -28,20 +28,17 @@ namespace Obotudavanie
         {
             InitializeComponent();
 
-            KPT kpt = new KPT();
-            kpt.Name_OsnovnSredstva.Value = "КПТ";
+            oborudovanies.AddRange(new List<Oborudovanie>()
+            { 
+                new KPT(),
+                new ElectroEngine(), 
+                new Kotel(), 
+                new Nasos(), 
+                new HeatExchanger(),
+                new PowerTransformator(),
+                new SNK_ControlStation()
+            });
 
-            ElectroEngine electroEngine = new ElectroEngine();
-            electroEngine.Name_OsnovnSredstva.Value = "Электродвигатель";
-
-            Kotel Kotel = new Kotel();
-            Kotel.Name_OsnovnSredstva.Value = "Котел";
-
-            string output = JsonConvert.SerializeObject(Kotel);
-
-            oborudovanies.Add(kpt);
-            oborudovanies.Add(electroEngine);
-            oborudovanies.Add(Kotel);
             Dictionary<int, string> namesList = new Dictionary<int, string>();
             for(int i = 0; i<oborudovanies.Count; i++)
             {
@@ -103,7 +100,6 @@ namespace Obotudavanie
 
         private void btn_GetData_Click(object sender, RoutedEventArgs e)
         {
-
             string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
             var req = (HttpWebRequest)WebRequest.Create(url);
             req.Credentials = new NetworkCredential("august", "august08");
@@ -115,6 +111,13 @@ namespace Obotudavanie
                 foreach (var jobj in jarray)
                 {
                     Oborudovanie obor = new Oborudovanie();
+                    bool containsItem = oborudovanies.Any(item => item.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
+                    if (containsItem)
+                    {
+                        var item = oborudovanies.Single(a => a.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
+                        Type type = item.GetType();
+                        obor = (Oborudovanie)Activator.CreateInstance(type);
+                    }
                     obor.InvNum_OsnovnSredstva.Value = int.Parse(jobj["ИнвентарныйНомер"].ToString());
                     obor.Name_OsnovnSredstva.Value = jobj["Наименование"].ToString();
                     obor.ShifrByCalssificator_OsnovnSredstva.Value = int.Parse(jobj["Шифр"].ToString());
@@ -127,6 +130,7 @@ namespace Obotudavanie
                     LoadedOborud.Add(obor);
                 }
             }
+            string json = JsonConvert.SerializeObject(LoadedOborud, Formatting.Indented);
             UpdateOborList();
         }
 

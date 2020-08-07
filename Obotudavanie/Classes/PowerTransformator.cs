@@ -17,6 +17,7 @@ namespace Obotudavanie.Classes
             Voltage = new Attribute<double> { DefValue = 0, EdIzm = "кВА", Name = "Напряжение", Type = "Вещественное", Value = 0 };
             FactoryNumber = new Attribute<string> { DefValue = "", EdIzm = "КГ/ч", Name = "Заводской номер", Type = "Текст", Value = "" };
             ShifrByCalssificator_OsnovnSredstva.Value = 40701;
+            Name_OsnovnSredstva.Value = "Силовой трансформатор";
         }
     }
 }
