@@ -11,6 +11,7 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.IO;
 
 namespace Obotudavanie
 {
@@ -27,6 +28,15 @@ namespace Obotudavanie
         public MainWindow()
         {
             InitializeComponent();
+            if (File.Exists("BD.json"))
+            {
+                JsonSerializerSettings settings = new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.All
+                };
+                LoadedOborud = JsonConvert.DeserializeObject<List<Oborudovanie>>(File.ReadAllText("BD.json"), settings);
+            }
+            UpdateOborList();
 
             oborudovanies.AddRange(new List<Oborudovanie>()
             { 
@@ -110,24 +120,27 @@ namespace Obotudavanie
                 var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
                 foreach (var jobj in jarray)
                 {
-                    Oborudovanie obor = new Oborudovanie();
-                    bool containsItem = oborudovanies.Any(item => item.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
-                    if (containsItem)
+                    if (!LoadedOborud.Any(item => item.InvNum_OsnovnSredstva.Value == int.Parse(jobj["ИнвентарныйНомер"].ToString())))
                     {
-                        var item = oborudovanies.Single(a => a.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
-                        Type type = item.GetType();
-                        obor = (Oborudovanie)Activator.CreateInstance(type);
+                        Oborudovanie obor = new Oborudovanie();
+                        bool containsItem = oborudovanies.Any(item => item.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
+                        if (containsItem)
+                        {
+                            var item = oborudovanies.Single(a => a.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
+                            Type type = item.GetType();
+                            obor = (Oborudovanie)Activator.CreateInstance(type);
+                        }
+                        obor.InvNum_OsnovnSredstva.Value = int.Parse(jobj["ИнвентарныйНомер"].ToString());
+                        obor.Name_OsnovnSredstva.Value = jobj["Наименование"].ToString();
+                        obor.ShifrByCalssificator_OsnovnSredstva.Value = int.Parse(jobj["Шифр"].ToString());
+                        obor.RUP_PartName.Value = jobj["ПодразделениеРУП"].ToString();
+                        obor.ORG_PartName.Value = jobj["Подразделение"].ToString();
+                        obor.Year_OsnovnSredstva.Value = int.Parse(jobj["ГодВыпуска"].ToString());
+                        obor.Vvod_v_Expl_Date.Value = DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd", CultureInfo.InvariantCulture);
+                        obor.MatOtv_Person.Value = jobj["МОЛ"].ToString();
+                        obor.Dislocation_OsnovnSredstva.Value = jobj["Местонахождение"].ToString();
+                        LoadedOborud.Add(obor);
                     }
-                    obor.InvNum_OsnovnSredstva.Value = int.Parse(jobj["ИнвентарныйНомер"].ToString());
-                    obor.Name_OsnovnSredstva.Value = jobj["Наименование"].ToString();
-                    obor.ShifrByCalssificator_OsnovnSredstva.Value = int.Parse(jobj["Шифр"].ToString());
-                    obor.RUP_PartName.Value = jobj["ПодразделениеРУП"].ToString();
-                    obor.ORG_PartName.Value = jobj["Подразделение"].ToString();
-                    obor.Year_OsnovnSredstva.Value = int.Parse(jobj["ГодВыпуска"].ToString());
-                    obor.Vvod_v_Expl_Date.Value = DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd",CultureInfo.InvariantCulture);
-                    obor.MatOtv_Person.Value = jobj["МОЛ"].ToString();
-                    obor.Dislocation_OsnovnSredstva.Value = jobj["Местонахождение"].ToString();
-                    LoadedOborud.Add(obor);
                 }
             }
             string json = JsonConvert.SerializeObject(LoadedOborud, Formatting.Indented);
@@ -193,6 +206,12 @@ namespace Obotudavanie
                 OborList.Add(LoadedOborud[i].InvNum_OsnovnSredstva.Value, LoadedOborud[i].Name_OsnovnSredstva.Value.ToString());
             }
             ListGrid.ItemsSource = OborList;
+
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All
+            };
+            File.WriteAllText("BD.json", JsonConvert.SerializeObject(LoadedOborud, settings));
         }
     }
 }

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Obotudavanie"
         xmlns:dxb="http://schemas.devexpress.com/winfx/2008/xaml/bars" xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="Obotudavanie.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" FontFamily="Calibri" FontWeight="Bold" FontSize="18" Height="700" Width="1300      ">
+        Title="MainWindow" FontFamily="Calibri" FontWeight="Bold" FontSize="18" Height="700" Width="1300" MinWidth="1200" MinHeight="700">
     <Window.Resources>
         <Style x:Key="DataGridCellStyle1" TargetType="{x:Type DataGridCell}">
             <Setter Property="Background" Value="Transparent"/>
@@ -97,11 +97,11 @@
             <TabItem Header="Классификатор">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="117*"/>
-                        <ColumnDefinition Width="23*"/>
-                        <ColumnDefinition Width="899*"/>
+                        <ColumnDefinition Width="300" MinWidth="200" MaxWidth="500"/>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid x:Name="ClassGrid" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" Grid.Column="2" Margin="110,0,0,0" >
+                    <DataGrid x:Name="ClassGrid" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" Grid.Column="2" >
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Наименование" Binding="{Binding Name}"/>
                             <DataGridTextColumn Header="Тип" Binding="{Binding Type}"/>
@@ -110,7 +110,8 @@
                             <DataGridTextColumn Visibility="Collapsed" Header="Значение" Binding="{Binding Value}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <DataGrid x:Name="ListGrid0" AutoGenerateColumns="false" Margin="0,0,1008,-34"  ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid0_SelectionChanged" Grid.ColumnSpan="3">
+                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+                    <DataGrid x:Name="ListGrid0" Grid.Column="0" AutoGenerateColumns="false" Margin="0,0,0,-34"  ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid0_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Visibility="Collapsed" Header="Номер" Binding="{Binding Key}"/>
                             <DataGridTextColumn Header="Наименование" Binding="{Binding Value}"/>
@@ -120,28 +121,24 @@
             </TabItem>
             <TabItem Header="Редактор" >
                 <Grid Background="#FFE5E5E5">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="305*"/>
-                        <RowDefinition Height="307*"/>
-                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0*"/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="300" MinWidth="200" MaxWidth="500"/>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid x:Name="dtGrid_dataOutput" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="278,0,0,0" >
+                    <DataGrid x:Name="dtGrid_dataOutput" Grid.Column="2" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" >
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Наименование" Binding="{Binding Name}"/>
                             <DataGridTextColumn Header="Тип" Binding="{Binding Type}"/>
                             <DataGridTextColumn Header="Значение" Binding="{Binding Value}"/>
                             <DataGridTextColumn Visibility="Collapsed" Header="Умолчание" Binding="{Binding DefValue}"/>
                             <DataGridTextColumn Header="Ед изм" Binding="{Binding EdIzm}"/>
-                            
                         </DataGrid.Columns>
                     </DataGrid>
-                    <Button x:Name="button1" Visibility="Collapsed" Click="button1_Click" Content="Сохранить данные" HorizontalAlignment="Left" Height="32" Margin="301,77,0,0" VerticalAlignment="Top" Width="196" RenderTransformOrigin="-1.948,0.75" Grid.Column="1" Grid.Row="1"/>
-                    <DataGrid x:Name="ListGrid" AutoGenerateColumns="false" Margin="0,0,1013,-34"  ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid_SelectionChanged" Grid.ColumnSpan="2" Grid.RowSpan="2">
+                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+                    <DataGrid x:Name="ListGrid" Grid.Column="0" AutoGenerateColumns="false"   ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid_SelectionChanged">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Инв.Номер" Binding="{Binding Key}"/>
+                            <DataGridTextColumn Header="Инв.Номер" Binding="{Binding Key}" MaxWidth="120"/>
                             <DataGridTextColumn Header="Наименование" Binding="{Binding Value}"/>
                         </DataGrid.Columns>
                     </DataGrid>
