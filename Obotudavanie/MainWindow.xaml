@@ -138,7 +138,7 @@
                             
                         </DataGrid.Columns>
                     </DataGrid>
-                    <Button x:Name="button1" Click="button1_Click" Content="Сохранить данные" HorizontalAlignment="Left" Height="32" Margin="301,77,0,0" VerticalAlignment="Top" Width="196" RenderTransformOrigin="-1.948,0.75" Grid.Column="1" Grid.Row="1"/>
+                    <Button x:Name="button1" Visibility="Collapsed" Click="button1_Click" Content="Сохранить данные" HorizontalAlignment="Left" Height="32" Margin="301,77,0,0" VerticalAlignment="Top" Width="196" RenderTransformOrigin="-1.948,0.75" Grid.Column="1" Grid.Row="1"/>
                     <DataGrid x:Name="ListGrid" AutoGenerateColumns="false" Margin="0,0,1013,-34"  ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid_SelectionChanged" Grid.ColumnSpan="2" Grid.RowSpan="2">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Инв.Номер" Binding="{Binding Key}"/>
