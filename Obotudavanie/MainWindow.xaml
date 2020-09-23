@@ -92,6 +92,9 @@
             <MenuItem Header="Данные" Height="22">
                 <MenuItem Header="Запросить данные"  x:Name="GetData" Click="btn_GetData_Click"/>
             </MenuItem>
+            <MenuItem Header="Данные2" Height="22">
+                <MenuItem Header="Запросить данные"  x:Name="GetData2" Click="btn_GetData_Click2"/>
+            </MenuItem>
         </Menu>
         <TabControl Margin="0,23,0,0">
             <TabItem Header="Классификатор">
@@ -101,7 +104,7 @@
                         <ColumnDefinition Width="5" />
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid x:Name="ClassGrid" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" Grid.Column="2" >
+                    <DataGrid x:Name="ClassGrid" IsReadOnly="True" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" Grid.Column="2" >
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Наименование" Binding="{Binding Name}"/>
                             <DataGridTextColumn Header="Тип" Binding="{Binding Type}"/>

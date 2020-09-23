@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.IO;
+using System.Windows.Data;
 
 namespace Obotudavanie
 {
@@ -28,11 +29,13 @@ namespace Obotudavanie
         public MainWindow()
         {
             InitializeComponent();
+
+            dtGrid_dataOutput.CellEditEnding += dtGrid_dataOutput_CellEditEnding;
             if (File.Exists("BD.json"))
             {
                 JsonSerializerSettings settings = new JsonSerializerSettings
                 {
-                    TypeNameHandling = TypeNameHandling.All
+                    TypeNameHandling = TypeNameHandling.Auto
                 };
                 LoadedOborud = JsonConvert.DeserializeObject<List<Oborudovanie>>(File.ReadAllText("BD.json"), settings);
             }
@@ -147,6 +150,26 @@ namespace Obotudavanie
             UpdateOborList();
         }
 
+        private void btn_GetData_Click2(object sender, RoutedEventArgs e)
+        {
+            List<string> ToTable = new List<string>();
+            string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
+            var req = (HttpWebRequest)WebRequest.Create(url);
+            req.Credentials = new NetworkCredential("august", "august08");
+            var response = req.GetResponse();
+            using (var reader = new System.IO.StreamReader(response.GetResponseStream()))
+            {
+                string responseBody = reader.ReadToEnd();
+                var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
+                foreach (var jobj in jarray)
+                {
+                    string str1 = jobj["Наименование"].ToString() + ";" + jobj["ИнвентарныйНомер"].ToString() + ";" + DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd", CultureInfo.InvariantCulture).ToString() + ";" + jobj["ГодВыпуска"].ToString() + ";" + jobj["МОЛ"].ToString() + ";" + jobj["Подразделение"].ToString() + ";" + jobj["Шифр"].ToString() + ";" + jobj["Местонахождение"].ToString() + ";" + jobj["ПодразделениеРУП"].ToString() + ";\n";
+                    ToTable.Add(str1);
+                }
+                File.WriteAllLines("list.csv", ToTable);
+            }
+        }
+
         private void ListGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataGrid dataGrid = sender as DataGrid;
@@ -209,9 +232,28 @@ namespace Obotudavanie
 
             JsonSerializerSettings settings = new JsonSerializerSettings
             {
-                TypeNameHandling = TypeNameHandling.All
+                TypeNameHandling = TypeNameHandling.Auto
             };
             File.WriteAllText("BD.json", JsonConvert.SerializeObject(LoadedOborud, settings));
+        }
+
+        void dtGrid_dataOutput_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            //if (e.EditAction == DataGridEditAction.Commit)
+            //{
+            //    var column = e.Column as DataGridBoundColumn;
+            //    if (column != null)
+            //    {
+            //        var bindingPath = (column.Binding as Binding).Path.Path;
+            //            int rowIndex = e.Row.GetIndex();
+            //        var MyRow = e.Row.Item.GetType().ToString();
+
+            //            // rowIndex has the row index
+            //            // bindingPath has the column's binding
+            //            // el.Text has the new, user-entered value
+            //    }
+            //}
+
         }
     }
 }
