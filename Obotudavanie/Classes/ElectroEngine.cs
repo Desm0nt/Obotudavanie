@@ -1,5 +1,8 @@
-﻿namespace Obotudavanie.Classes
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace Obotudavanie.Classes
 {
+    [BsonIgnoreExtraElements]
     public class ElectroEngine: Oborudovanie
     {
         public Attribute<double> RotorFrequency { get; set; }

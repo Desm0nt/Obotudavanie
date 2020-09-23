@@ -1,8 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 using System;
 
 namespace Obotudavanie.Classes
 {
+    [BsonIgnoreExtraElements]
+    [BsonKnownTypes(typeof(ElectroEngine), typeof(ChemicalWaterCleaningSystem), typeof(HeatExchanger), typeof(Kotel), typeof(Nasos), typeof(KPT), typeof(PowerTransformator), typeof(SNK_ControlStation))]
     public class Oborudovanie
     {
         public Attribute<int> InvNum_OsnovnSredstva { get; set; }

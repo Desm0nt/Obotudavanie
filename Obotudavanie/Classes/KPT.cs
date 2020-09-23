@@ -1,5 +1,8 @@
-﻿namespace Obotudavanie.Classes
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace Obotudavanie.Classes
 {
+    [BsonIgnoreExtraElements]
     class KPT:Oborudovanie
     {
         public Attribute<string> Type { get; set; }

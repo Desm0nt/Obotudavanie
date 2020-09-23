@@ -13,6 +13,9 @@ using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.IO;
 using System.Windows.Data;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System.Threading.Tasks;
 
 namespace Obotudavanie
 {
@@ -23,6 +26,7 @@ namespace Obotudavanie
     {
         Excel excel = new Excel();
         List<Oborudovanie> LoadedOborud = new List<Oborudovanie>();
+        static List<Oborudovanie> LoadedOborud2 = new List<Oborudovanie>();
         List<Oborudovanie> oborudovanies = new List<Oborudovanie>();
         Dictionary<int, string> OborList = new Dictionary<int, string>();
 
@@ -31,14 +35,20 @@ namespace Obotudavanie
             InitializeComponent();
 
             dtGrid_dataOutput.CellEditEnding += dtGrid_dataOutput_CellEditEnding;
-            if (File.Exists("BD.json"))
-            {
-                JsonSerializerSettings settings = new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.Auto
-                };
-                LoadedOborud = JsonConvert.DeserializeObject<List<Oborudovanie>>(File.ReadAllText("BD.json"), settings);
-            }
+            //if (File.Exists("BD.json"))
+            //{
+            //    JsonSerializerSettings settings = new JsonSerializerSettings
+            //    {
+            //        TypeNameHandling = TypeNameHandling.Auto
+            //    };
+            //    LoadedOborud = JsonConvert.DeserializeObject<List<Oborudovanie>>(File.ReadAllText("BD.json"), settings);
+            //}
+            string connectionString = "mongodb://localhost";
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var filter = new BsonDocument();
+            LoadedOborud = collection.Find(filter).ToList();
             UpdateOborList();
 
             oborudovanies.AddRange(new List<Oborudovanie>()
@@ -67,6 +77,7 @@ namespace Obotudavanie
             //}
 
             ListGrid0.ItemsSource = namesList;
+
         }
         private void ListGrid0_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -146,27 +157,70 @@ namespace Obotudavanie
                     }
                 }
             }
+            string connectionString = "mongodb://localhost:27017";
+            MongoClient client = new MongoClient(connectionString);
+            IMongoDatabase database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var cust1 = new BsonDocument();
+            collection.InsertMany(LoadedOborud);
             string json = JsonConvert.SerializeObject(LoadedOborud, Formatting.Indented);
             UpdateOborList();
         }
 
+        private static async Task SaveDocs(List<Oborudovanie> Oborud)
+        {
+            string connectionString = "mongodb://localhost:27017";
+            MongoClient client = new MongoClient(connectionString);
+            IMongoDatabase database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var cust1 = new BsonDocument();
+            cust1.Add("Items", new BsonArray(Oborud.Select(i =>
+            i.ToBsonDocument())));
+            await collection.InsertManyAsync(Oborud);
+        }
+
         private void btn_GetData_Click2(object sender, RoutedEventArgs e)
         {
-            List<string> ToTable = new List<string>();
-            string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
-            var req = (HttpWebRequest)WebRequest.Create(url);
-            req.Credentials = new NetworkCredential("august", "august08");
-            var response = req.GetResponse();
-            using (var reader = new System.IO.StreamReader(response.GetResponseStream()))
+            //List<string> ToTable = new List<string>();
+            //string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
+            //var req = (HttpWebRequest)WebRequest.Create(url);
+            //req.Credentials = new NetworkCredential("august", "august08");
+            //var response = req.GetResponse();
+            //using (var reader = new System.IO.StreamReader(response.GetResponseStream()))
+            //{
+            //    string responseBody = reader.ReadToEnd();
+            //    var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
+            //    foreach (var jobj in jarray)
+            //    {
+            //        string str1 = jobj["Наименование"].ToString() + ";" + jobj["ИнвентарныйНомер"].ToString() + ";" + DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd", CultureInfo.InvariantCulture).ToString() + ";" + jobj["ГодВыпуска"].ToString() + ";" + jobj["МОЛ"].ToString() + ";" + jobj["Подразделение"].ToString() + ";" + jobj["Шифр"].ToString() + ";" + jobj["Местонахождение"].ToString() + ";" + jobj["ПодразделениеРУП"].ToString() + ";\n";
+            //        ToTable.Add(str1);
+            //    }
+            //    File.WriteAllLines("list.csv", ToTable);
+            //}
+            string connectionString = "mongodb://localhost";
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var filter = new BsonDocument();
+            var BNCol = collection.Find(filter).ToList();
+            foreach (var doc in BNCol)
             {
-                string responseBody = reader.ReadToEnd();
-                var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
-                foreach (var jobj in jarray)
-                {
-                    string str1 = jobj["Наименование"].ToString() + ";" + jobj["ИнвентарныйНомер"].ToString() + ";" + DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd", CultureInfo.InvariantCulture).ToString() + ";" + jobj["ГодВыпуска"].ToString() + ";" + jobj["МОЛ"].ToString() + ";" + jobj["Подразделение"].ToString() + ";" + jobj["Шифр"].ToString() + ";" + jobj["Местонахождение"].ToString() + ";" + jobj["ПодразделениеРУП"].ToString() + ";\n";
-                    ToTable.Add(str1);
-                }
-                File.WriteAllLines("list.csv", ToTable);
+                Console.WriteLine(doc);
+            }
+            FindDocs();
+        }
+
+        private static async Task FindDocs()
+        {
+            string connectionString = "mongodb://localhost";
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var filter = new BsonDocument();
+            var BNCol = await collection.Find(filter).ToListAsync();
+            foreach (var doc in BNCol)
+            {
+                Console.WriteLine(doc);
             }
         }
 
