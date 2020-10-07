@@ -27,7 +27,7 @@ namespace Obotudavanie
     {
         Excel excel = new Excel();
         List<Oborudovanie> LoadedOborud = new List<Oborudovanie>();
-        static List<Oborudovanie> LoadedOborud2 = new List<Oborudovanie>();
+        List<Oborudovanie> LoadedOborud2 = new List<Oborudovanie>();
         List<Oborudovanie> oborudovanies = new List<Oborudovanie>();
         Dictionary<int, string> OborList = new Dictionary<int, string>();
 
@@ -84,23 +84,73 @@ namespace Obotudavanie
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            ListGrid01.Visibility = Visibility.Collapsed;
-            ListGrid1.Visibility = Visibility.Visible;
+            ListGrid1.Visibility = Visibility.Collapsed;
+            ListGrid01.Visibility = Visibility.Visible;
+            BackButton.IsEnabled = false;
 
         }
 
         private void ListGrid01_Row_DoubleClick(object sender, MouseButtonEventArgs e)
         {
+            ListGrid01.Visibility = Visibility.Collapsed;
+            ListGrid1.Visibility = Visibility.Visible;
+            BackButton.IsEnabled = true;
             DataGridRow row = sender as DataGridRow;
             KeyValuePair<int, string> a = (KeyValuePair<int, string>)row.Item;
             var b = a.Key;
             var c = a.Value;
+
+            var oborud = oborudovanies[b-1];
+            Console.WriteLine(oborud.GetType().Name.ToString());
             //DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
             //int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
             //int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
 
             //  tabControl.SelectedItem = tiUebersicht;
+
+            string connectionString = "mongodb://localhost";
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var filter = new BsonDocument("_t", oborud.GetType().Name.ToString());
+            LoadedOborud2 = collection.Find(filter).ToList();
+            UpdateOborList2();
             e.Handled = true;
+        }
+
+        private void UpdateOborList2()
+        {
+            OborList = new Dictionary<int, string>();
+            for (int i = 0; i < LoadedOborud2.Count; i++)
+            {
+                OborList.Add(LoadedOborud2[i].InvNum_OsnovnSredstva.Value, LoadedOborud2[i].Name_OsnovnSredstva.Value.ToString());
+            }
+            ListGrid1.ItemsSource = OborList;
+        }
+
+        private void ListGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataGrid dataGrid = sender as DataGrid;
+            if (dataGrid.SelectedIndex >= 0)
+            {
+                DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
+                DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
+                int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
+                int selectedIndex = LoadedOborud2.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
+
+                DataSet dataSetData = new DataSet();
+                var a22 = LoadedOborud2[selectedIndex];
+
+                Oborudovanie eEngine = LoadedOborud2[selectedIndex];
+                var listOfFields1 = eEngine.GetType().GetProperties().ToList();
+                IList<IAttribute> attList = new List<IAttribute>();
+                foreach (var a in listOfFields1)
+                {
+                    var propvalue = a.GetValue(eEngine, null) as IAttribute;
+                    attList.Add(propvalue);
+                }
+                dtGrid_dataOutput1.ItemsSource = attList;
+            }
         }
 
         private string GetSelectedValue(DataGrid grid)
@@ -264,25 +314,26 @@ namespace Obotudavanie
         private void ListGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataGrid dataGrid = sender as DataGrid;
-            DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
-            DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
-            int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
-            int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
-
-            DataSet dataSetData = new DataSet();
-            var a22 = LoadedOborud[selectedIndex];
-
-            Oborudovanie eEngine = LoadedOborud[selectedIndex];
-            var listOfFields1 = eEngine.GetType().GetProperties().ToList();
-            IList<IAttribute> attList = new List<IAttribute>();
-            foreach (var a in listOfFields1)
+            if (dataGrid.SelectedIndex >= 0)
             {
-                var propvalue = a.GetValue(eEngine, null) as IAttribute;
-                attList.Add(propvalue);
+                DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
+                DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
+                int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
+                int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
+
+                DataSet dataSetData = new DataSet();
+                var a22 = LoadedOborud[selectedIndex];
+
+                Oborudovanie eEngine = LoadedOborud[selectedIndex];
+                var listOfFields1 = eEngine.GetType().GetProperties().ToList();
+                IList<IAttribute> attList = new List<IAttribute>();
+                foreach (var a in listOfFields1)
+                {
+                    var propvalue = a.GetValue(eEngine, null) as IAttribute;
+                    attList.Add(propvalue);
+                }
+                dtGrid_dataOutput.ItemsSource = attList;
             }
-            dtGrid_dataOutput.ItemsSource = attList;
-
-
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)
@@ -346,6 +397,7 @@ namespace Obotudavanie
             //}
 
         }
+
     }
 }
 
