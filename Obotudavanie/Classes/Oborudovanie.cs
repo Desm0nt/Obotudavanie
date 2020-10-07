@@ -8,6 +8,7 @@ namespace Obotudavanie.Classes
     [BsonKnownTypes(typeof(ElectroEngine), typeof(ChemicalWaterCleaningSystem), typeof(HeatExchanger), typeof(Kotel), typeof(Nasos), typeof(KPT), typeof(PowerTransformator), typeof(SNK_ControlStation))]
     public class Oborudovanie
     {
+        [BsonId]
         public Attribute<int> InvNum_OsnovnSredstva { get; set; }
         public Attribute<string> Name_OsnovnSredstva { get; set; }
         public Attribute<int> ShifrByCalssificator_OsnovnSredstva { get; set; }

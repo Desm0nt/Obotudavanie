@@ -16,6 +16,7 @@ using System.Windows.Data;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Obotudavanie
 {
@@ -77,7 +78,43 @@ namespace Obotudavanie
             //}
 
             ListGrid0.ItemsSource = namesList;
+            ListGrid01.ItemsSource = namesList;
 
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            ListGrid01.Visibility = Visibility.Collapsed;
+            ListGrid1.Visibility = Visibility.Visible;
+
+        }
+
+        private void ListGrid01_Row_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DataGridRow row = sender as DataGridRow;
+            KeyValuePair<int, string> a = (KeyValuePair<int, string>)row.Item;
+            var b = a.Key;
+            var c = a.Value;
+            //DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
+            //int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
+            //int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
+
+            //  tabControl.SelectedItem = tiUebersicht;
+            e.Handled = true;
+        }
+
+        private string GetSelectedValue(DataGrid grid)
+        {
+            DataGridCellInfo cellInfo = grid.SelectedCells[0];
+            if (cellInfo == null) return null;
+
+            DataGridBoundColumn column = cellInfo.Column as DataGridBoundColumn;
+            if (column == null) return null;
+
+            FrameworkElement element = new FrameworkElement() { DataContext = cellInfo.Item };
+            BindingOperations.SetBinding(element, TagProperty, column.Binding);
+
+            return element.Tag.ToString();
         }
         private void ListGrid0_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
