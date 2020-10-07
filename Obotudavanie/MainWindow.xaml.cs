@@ -12,8 +12,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.IO;
-using System.Windows.Data;
-using System.Windows.Input;
 
 namespace Obotudavanie
 {
@@ -30,13 +28,11 @@ namespace Obotudavanie
         public MainWindow()
         {
             InitializeComponent();
-
-            dtGrid_dataOutput.CellEditEnding += dtGrid_dataOutput_CellEditEnding;
             if (File.Exists("BD.json"))
             {
                 JsonSerializerSettings settings = new JsonSerializerSettings
                 {
-                    TypeNameHandling = TypeNameHandling.Auto
+                    TypeNameHandling = TypeNameHandling.All
                 };
                 LoadedOborud = JsonConvert.DeserializeObject<List<Oborudovanie>>(File.ReadAllText("BD.json"), settings);
             }
@@ -68,7 +64,6 @@ namespace Obotudavanie
             //}
 
             ListGrid0.ItemsSource = namesList;
-            ListGrid01.ItemsSource = namesList;
         }
         private void ListGrid0_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -152,62 +147,6 @@ namespace Obotudavanie
             UpdateOborList();
         }
 
-        private void btn_GetData_Click2(object sender, RoutedEventArgs e)
-        {
-            List<string> ToTable = new List<string>();
-            string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
-            var req = (HttpWebRequest)WebRequest.Create(url);
-            req.Credentials = new NetworkCredential("august", "august08");
-            var response = req.GetResponse();
-            using (var reader = new System.IO.StreamReader(response.GetResponseStream()))
-            {
-                string responseBody = reader.ReadToEnd();
-                var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
-                foreach (var jobj in jarray)
-                {
-                    string str1 = jobj["Наименование"].ToString() + ";" + jobj["ИнвентарныйНомер"].ToString() + ";" + DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd", CultureInfo.InvariantCulture).ToString() + ";" + jobj["ГодВыпуска"].ToString() + ";" + jobj["МОЛ"].ToString() + ";" + jobj["Подразделение"].ToString() + ";" + jobj["Шифр"].ToString() + ";" + jobj["Местонахождение"].ToString() + ";" + jobj["ПодразделениеРУП"].ToString() + ";\n";
-                    ToTable.Add(str1);
-                }
-                File.WriteAllLines("list.csv", ToTable);
-            }
-        }
-
-
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            ListGrid01.Visibility = Visibility.Collapsed;
-            ListGrid1.Visibility = Visibility.Visible;
-
-        }
-
-        private void ListGrid01_Row_DoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            DataGridRow row = sender as DataGridRow;
-            KeyValuePair<int, string> a = (KeyValuePair<int, string>)row.Item;
-            var b = a.Key;
-            var c = a.Value;
-            //DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
-            //int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
-            //int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
-
-            //  tabControl.SelectedItem = tiUebersicht;
-            e.Handled = true;
-        }
-
-        private string GetSelectedValue(DataGrid grid)
-        {
-            DataGridCellInfo cellInfo = grid.SelectedCells[0];
-            if (cellInfo == null) return null;
-
-            DataGridBoundColumn column = cellInfo.Column as DataGridBoundColumn;
-            if (column == null) return null;
-
-            FrameworkElement element = new FrameworkElement() { DataContext = cellInfo.Item };
-            BindingOperations.SetBinding(element, TagProperty, column.Binding);
-
-            return element.Tag.ToString();
-        }
-
         private void ListGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataGrid dataGrid = sender as DataGrid;
@@ -270,28 +209,9 @@ namespace Obotudavanie
 
             JsonSerializerSettings settings = new JsonSerializerSettings
             {
-                TypeNameHandling = TypeNameHandling.Auto
+                TypeNameHandling = TypeNameHandling.All
             };
             File.WriteAllText("BD.json", JsonConvert.SerializeObject(LoadedOborud, settings));
-        }
-
-        void dtGrid_dataOutput_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-            //if (e.EditAction == DataGridEditAction.Commit)
-            //{
-            //    var column = e.Column as DataGridBoundColumn;
-            //    if (column != null)
-            //    {
-            //        var bindingPath = (column.Binding as Binding).Path.Path;
-            //            int rowIndex = e.Row.GetIndex();
-            //        var MyRow = e.Row.Item.GetType().ToString();
-
-            //            // rowIndex has the row index
-            //            // bindingPath has the column's binding
-            //            // el.Text has the new, user-entered value
-            //    }
-            //}
-
         }
     }
 }
