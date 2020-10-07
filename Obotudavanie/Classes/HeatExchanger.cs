@@ -27,7 +27,7 @@ namespace Obotudavanie.Classes
             PlateCount = new Attribute<int> { DefValue = 0, EdIzm = "шт", Name = "Количество пластин", Type = "Целое", Value = 0 };
             HeatPower = new Attribute<double> { DefValue = 0, EdIzm = "кВт", Name = "Тепловая мощность", Type = "Вещественное", Value = 0 };
             HeatExchangeSquare = new Attribute<double> { DefValue = 0, EdIzm = "кв.м", Name = "Площадь поверхности теплообмена", Type = "Вещественное", Value = 0 };
-            //ShifrByCalssificator_OsnovnSredstva.Value = 60000;
+            ShifrByCalssificator_OsnovnSredstva.Value = 60000;
             Name_OsnovnSredstva.Value = "Теплообменник";
         }
     }
