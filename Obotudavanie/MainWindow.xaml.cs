@@ -12,6 +12,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.IO;
+using System.Windows.Data;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Obotudavanie
 {
@@ -22,20 +27,29 @@ namespace Obotudavanie
     {
         Excel excel = new Excel();
         List<Oborudovanie> LoadedOborud = new List<Oborudovanie>();
+        static List<Oborudovanie> LoadedOborud2 = new List<Oborudovanie>();
         List<Oborudovanie> oborudovanies = new List<Oborudovanie>();
         Dictionary<int, string> OborList = new Dictionary<int, string>();
 
         public MainWindow()
         {
             InitializeComponent();
-            if (File.Exists("BD.json"))
-            {
-                JsonSerializerSettings settings = new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.All
-                };
-                LoadedOborud = JsonConvert.DeserializeObject<List<Oborudovanie>>(File.ReadAllText("BD.json"), settings);
-            }
+
+            dtGrid_dataOutput.CellEditEnding += dtGrid_dataOutput_CellEditEnding;
+            //if (File.Exists("BD.json"))
+            //{
+            //    JsonSerializerSettings settings = new JsonSerializerSettings
+            //    {
+            //        TypeNameHandling = TypeNameHandling.Auto
+            //    };
+            //    LoadedOborud = JsonConvert.DeserializeObject<List<Oborudovanie>>(File.ReadAllText("BD.json"), settings);
+            //}
+            string connectionString = "mongodb://localhost";
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var filter = new BsonDocument();
+            LoadedOborud = collection.Find(filter).ToList();
             UpdateOborList();
 
             oborudovanies.AddRange(new List<Oborudovanie>()
@@ -64,6 +78,43 @@ namespace Obotudavanie
             //}
 
             ListGrid0.ItemsSource = namesList;
+            ListGrid01.ItemsSource = namesList;
+
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            ListGrid01.Visibility = Visibility.Collapsed;
+            ListGrid1.Visibility = Visibility.Visible;
+
+        }
+
+        private void ListGrid01_Row_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DataGridRow row = sender as DataGridRow;
+            KeyValuePair<int, string> a = (KeyValuePair<int, string>)row.Item;
+            var b = a.Key;
+            var c = a.Value;
+            //DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
+            //int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
+            //int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
+
+            //  tabControl.SelectedItem = tiUebersicht;
+            e.Handled = true;
+        }
+
+        private string GetSelectedValue(DataGrid grid)
+        {
+            DataGridCellInfo cellInfo = grid.SelectedCells[0];
+            if (cellInfo == null) return null;
+
+            DataGridBoundColumn column = cellInfo.Column as DataGridBoundColumn;
+            if (column == null) return null;
+
+            FrameworkElement element = new FrameworkElement() { DataContext = cellInfo.Item };
+            BindingOperations.SetBinding(element, TagProperty, column.Binding);
+
+            return element.Tag.ToString();
         }
         private void ListGrid0_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -143,8 +194,71 @@ namespace Obotudavanie
                     }
                 }
             }
+            string connectionString = "mongodb://localhost:27017";
+            MongoClient client = new MongoClient(connectionString);
+            IMongoDatabase database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var cust1 = new BsonDocument();
+            collection.InsertMany(LoadedOborud);
             string json = JsonConvert.SerializeObject(LoadedOborud, Formatting.Indented);
             UpdateOborList();
+        }
+
+        private static async Task SaveDocs(List<Oborudovanie> Oborud)
+        {
+            string connectionString = "mongodb://localhost:27017";
+            MongoClient client = new MongoClient(connectionString);
+            IMongoDatabase database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var cust1 = new BsonDocument();
+            cust1.Add("Items", new BsonArray(Oborud.Select(i =>
+            i.ToBsonDocument())));
+            await collection.InsertManyAsync(Oborud);
+        }
+
+        private void btn_GetData_Click2(object sender, RoutedEventArgs e)
+        {
+            //List<string> ToTable = new List<string>();
+            //string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
+            //var req = (HttpWebRequest)WebRequest.Create(url);
+            //req.Credentials = new NetworkCredential("august", "august08");
+            //var response = req.GetResponse();
+            //using (var reader = new System.IO.StreamReader(response.GetResponseStream()))
+            //{
+            //    string responseBody = reader.ReadToEnd();
+            //    var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
+            //    foreach (var jobj in jarray)
+            //    {
+            //        string str1 = jobj["Наименование"].ToString() + ";" + jobj["ИнвентарныйНомер"].ToString() + ";" + DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd", CultureInfo.InvariantCulture).ToString() + ";" + jobj["ГодВыпуска"].ToString() + ";" + jobj["МОЛ"].ToString() + ";" + jobj["Подразделение"].ToString() + ";" + jobj["Шифр"].ToString() + ";" + jobj["Местонахождение"].ToString() + ";" + jobj["ПодразделениеРУП"].ToString() + ";\n";
+            //        ToTable.Add(str1);
+            //    }
+            //    File.WriteAllLines("list.csv", ToTable);
+            //}
+            string connectionString = "mongodb://localhost";
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var filter = new BsonDocument();
+            var BNCol = collection.Find(filter).ToList();
+            foreach (var doc in BNCol)
+            {
+                Console.WriteLine(doc);
+            }
+            FindDocs();
+        }
+
+        private static async Task FindDocs()
+        {
+            string connectionString = "mongodb://localhost";
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var filter = new BsonDocument();
+            var BNCol = await collection.Find(filter).ToListAsync();
+            foreach (var doc in BNCol)
+            {
+                Console.WriteLine(doc);
+            }
         }
 
         private void ListGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -209,9 +323,28 @@ namespace Obotudavanie
 
             JsonSerializerSettings settings = new JsonSerializerSettings
             {
-                TypeNameHandling = TypeNameHandling.All
+                TypeNameHandling = TypeNameHandling.Auto
             };
             File.WriteAllText("BD.json", JsonConvert.SerializeObject(LoadedOborud, settings));
+        }
+
+        void dtGrid_dataOutput_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            //if (e.EditAction == DataGridEditAction.Commit)
+            //{
+            //    var column = e.Column as DataGridBoundColumn;
+            //    if (column != null)
+            //    {
+            //        var bindingPath = (column.Binding as Binding).Path.Path;
+            //            int rowIndex = e.Row.GetIndex();
+            //        var MyRow = e.Row.Item.GetType().ToString();
+
+            //            // rowIndex has the row index
+            //            // bindingPath has the column's binding
+            //            // el.Text has the new, user-entered value
+            //    }
+            //}
+
         }
     }
 }
