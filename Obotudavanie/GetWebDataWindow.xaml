@@ -4,9 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Obotudavanie"
-        xmlns:dxb="http://schemas.devexpress.com/winfx/2008/xaml/bars" xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="Obotudavanie.MainWindow"
+        xmlns:dxb="http://schemas.devexpress.com/winfx/2008/xaml/bars" xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="Obotudavanie.GetWebDataWindow"
         mc:Ignorable="d"
-        Title="MainWindow" FontFamily="Calibri" FontWeight="Bold" FontSize="18" Height="700" Width="1300" MinWidth="1200" MinHeight="700">
+        Title="GetWebDataWindow" FontFamily="Calibri" FontWeight="Bold" FontSize="18" Height="700" Width="1300" MinWidth="1200" MinHeight="700">
     <Window.Resources>
         <Style x:Key="DataGridCellStyle1" TargetType="{x:Type DataGridCell}">
             <Setter Property="Background" Value="Transparent"/>
@@ -91,7 +91,6 @@
             </MenuItem>
             <MenuItem Header="Данные" Height="22">
                 <MenuItem Header="Запросить данные"  x:Name="GetData" Click="btn_GetData_Click"/>
-                <MenuItem Header="Запросить данные (окно)"  x:Name="GetDataWindow" Click="btn_GetDataWindow_Click"/>
             </MenuItem>
             <MenuItem Header="Данные2" Height="22">
                 <MenuItem Header="Запросить данные"  x:Name="GetData2" Click="btn_GetData_Click2"/>

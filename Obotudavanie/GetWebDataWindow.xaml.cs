@@ -21,9 +21,9 @@ using System.Windows.Input;
 namespace Obotudavanie
 {
     /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
+    /// Логика взаимодействия для GetWebDataWindow.xaml
     /// </summary>
-    public partial class MainWindow : System.Windows.Window
+    public partial class GetWebDataWindow : System.Windows.Window
     {
         Excel excel = new Excel();
         List<Oborudovanie> LoadedOborud = new List<Oborudovanie>();
@@ -32,7 +32,7 @@ namespace Obotudavanie
         List<Oborudovanie> oborudovanies_editor = new List<Oborudovanie>();
         Dictionary<int, string> OborList = new Dictionary<int, string>();
 
-        public MainWindow()
+        public GetWebDataWindow()
         {
             InitializeComponent();
 
@@ -414,11 +414,6 @@ namespace Obotudavanie
 
         }
 
-        private void btn_GetDataWindow_Click(object sender, RoutedEventArgs e)
-        {
-            GetWebDataWindow subWindow = new GetWebDataWindow();
-            subWindow.Show();
-        }
     }
 }
 

@@ -176,6 +176,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="GetWebDataWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -196,6 +200,9 @@
     <Compile Include="Classes\Oborudovanie.cs" />
     <Compile Include="Classes\PowerTransformator.cs" />
     <Compile Include="Classes\SNK_ControlStation.cs" />
+    <Compile Include="GetWebDataWindow.xaml.cs">
+      <DependentUpon>GetWebDataWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

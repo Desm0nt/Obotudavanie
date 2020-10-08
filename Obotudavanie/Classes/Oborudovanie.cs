@@ -5,7 +5,7 @@ using System;
 namespace Obotudavanie.Classes
 {
     [BsonIgnoreExtraElements]
-    [BsonKnownTypes(typeof(ElectroEngine), typeof(ChemicalWaterCleaningSystem), typeof(HeatExchanger), typeof(Kotel), typeof(Nasos), typeof(KPT), typeof(PowerTransformator), typeof(SNK_ControlStation))]
+    [BsonKnownTypes(typeof(ElectroEngine), typeof(ChemicalWaterCleaningSystem), typeof(HeatExchanger), typeof(Kotel), typeof(Nasos), typeof(KPT), typeof(PowerTransformator), typeof(SNK_ControlStation), typeof(Oborudovanie))]
     public class Oborudovanie
     {
         [BsonId]
@@ -30,6 +30,7 @@ namespace Obotudavanie.Classes
             Vvod_v_Expl_Date = new Attribute<DateTime> { DefValue = DateTime.Now, EdIzm = "", Name = "Дата ввода в эксплуатацию на последнем месте работы", Type = "Дата", Value = DateTime.Now };
             MatOtv_Person = new Attribute<string> { DefValue = "", EdIzm = "", Name = "Материально-ответственное лицо", Type = "Текст", Value = "" };
             Dislocation_OsnovnSredstva = new Attribute<string> { DefValue = "", EdIzm = "", Name = "Местоположение основного средства", Type = "Текст", Value = "" };
+            Name_OsnovnSredstva.Value = "Оборудование";
 
         }
 
