@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Obotudavanie"
         xmlns:dxb="http://schemas.devexpress.com/winfx/2008/xaml/bars" xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="Obotudavanie.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" FontFamily="Calibri" FontWeight="Bold" FontSize="18" Height="700" Width="1300" MinWidth="1200" MinHeight="700">
+        Title="MainWindow" FontFamily="Calibri" FontWeight="Bold" FontSize="18" Height="700" Width="1300" MinWidth="1300" MinHeight="700">
     <Window.Resources>
         <Style x:Key="DataGridCellStyle1" TargetType="{x:Type DataGridCell}">
             <Setter Property="Background" Value="Transparent"/>

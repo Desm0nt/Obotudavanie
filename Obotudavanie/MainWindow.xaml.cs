@@ -416,8 +416,24 @@ namespace Obotudavanie
 
         private void btn_GetDataWindow_Click(object sender, RoutedEventArgs e)
         {
-            GetWebDataWindow subWindow = new GetWebDataWindow();
+            GetWebDataWindow subWindow = new GetWebDataWindow()
+            {
+                Owner = System.Windows.Application.Current.MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            };
             subWindow.Show();
+            subWindow.Closed += subWindowClosed;
+        }
+
+        public void subWindowClosed(object sender, System.EventArgs e)
+        {
+            string connectionString = "mongodb://localhost";
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var filter = new BsonDocument();
+            LoadedOborud = collection.Find(filter).ToList();
+            UpdateOborList();
         }
     }
 }

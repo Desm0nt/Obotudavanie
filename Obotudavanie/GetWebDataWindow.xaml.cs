@@ -26,45 +26,21 @@ namespace Obotudavanie
     public partial class GetWebDataWindow : System.Windows.Window
     {
         Excel excel = new Excel();
+        int indexObor = 0;
         List<Oborudovanie> LoadedOborud = new List<Oborudovanie>();
         List<Oborudovanie> LoadedOborud2 = new List<Oborudovanie>();
         List<Oborudovanie> oborudovanies = new List<Oborudovanie>();
         List<Oborudovanie> oborudovanies_editor = new List<Oborudovanie>();
+        Dictionary<int, string> namesList = new Dictionary<int, string>();
+        public KeyValuePair<Type, string> keyItem { get; set; }
+        public Dictionary<Type, string> typeNameList { get; set; }
         Dictionary<int, string> OborList = new Dictionary<int, string>();
 
         public GetWebDataWindow()
         {
             InitializeComponent();
 
-            dtGrid_dataOutput.CellEditEnding += dtGrid_dataOutput_CellEditEnding;
-            //if (File.Exists("BD.json"))
-            //{
-            //    JsonSerializerSettings settings = new JsonSerializerSettings
-            //    {
-            //        TypeNameHandling = TypeNameHandling.Auto
-            //    };
-            //    LoadedOborud = JsonConvert.DeserializeObject<List<Oborudovanie>>(File.ReadAllText("BD.json"), settings);
-            //}
-            string connectionString = "mongodb://localhost";
-            var client = new MongoClient(connectionString);
-            var database = client.GetDatabase("BN");
-            var collection = database.GetCollection<Oborudovanie>("BNCol");
-            var filter = new BsonDocument();
-            LoadedOborud = collection.Find(filter).ToList();
-            UpdateOborList();
-
             oborudovanies.AddRange(new List<Oborudovanie>()
-            { 
-                new KPT(),
-                new ElectroEngine(), 
-                new Kotel(), 
-                new Nasos(), 
-                new HeatExchanger(),
-                new PowerTransformator(),
-                new SNK_ControlStation()
-            });
-
-            oborudovanies_editor.AddRange(new List<Oborudovanie>()
             {
                 new KPT(),
                 new ElectroEngine(),
@@ -76,75 +52,80 @@ namespace Obotudavanie
                 new Oborudovanie()
             });
 
-            Dictionary<int, string> namesList = new Dictionary<int, string>();
-            Dictionary<int, string> namesList2 = new Dictionary<int, string>();
-            for (int i = 0; i<oborudovanies.Count; i++)
+            typeNameList = new Dictionary<Type, string>();
+            for (int i = 0; i < oborudovanies.Count; i++)
             {
-                namesList.Add((i+1), oborudovanies[i].Name_OsnovnSredstva.Value);
+                namesList.Add(i, oborudovanies[i].Name_OsnovnSredstva.Value);
+                typeNameList.Add(oborudovanies[i].GetType(), oborudovanies[i].Name_OsnovnSredstva.Value);
             }
-
-            for (int i = 0; i < oborudovanies_editor.Count; i++)
-            {
-                namesList2.Add((i + 1), oborudovanies_editor[i].Name_OsnovnSredstva.Value);
-            }
-            //var listOfFields1 = kpt2.GetType().GetProperties().ToList();
-            //IList<IAttribute> attList = new List<IAttribute>();
-            //foreach (var a in listOfFields1)
-            //{
-            //    var propvalue = a.GetValue(kpt2, null) as IAttribute;
-            //    attList.Add(propvalue);
-            //}
-
-            ListGrid0.ItemsSource = namesList;
-            ListGrid01.ItemsSource = namesList2;
-
+            typeNameListCombobox.ItemsSource = typeNameList;
+            typeNameListCombobox.SelectedIndex = 0;
         }
 
-        private void BackButton_Click(object sender, RoutedEventArgs e)
+        private void typeNameListCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ListGrid1.Visibility = Visibility.Collapsed;
-            ListGrid01.Visibility = Visibility.Visible;
-            BackButton.IsEnabled = false;
-
-        }
-
-        private void ListGrid01_Row_DoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            ListGrid01.Visibility = Visibility.Collapsed;
-            ListGrid1.Visibility = Visibility.Visible;
-            BackButton.IsEnabled = true;
-            DataGridRow row = sender as DataGridRow;
-            KeyValuePair<int, string> item = (KeyValuePair<int, string>)row.Item;
-
-            var oborud = oborudovanies_editor[item.Key - 1];
-            Console.WriteLine(oborud.GetType().Name.ToString());
-
-            string connectionString = "mongodb://localhost";
-            var client = new MongoClient(connectionString);
-            var database = client.GetDatabase("BN");
-            var collection = database.GetCollection<Oborudovanie>("BNCol");
-            var builder = Builders<Oborudovanie>.Filter;
-            var filter = builder.Eq("_t", oborud.GetType().Name.ToString());
-            if (item.Value == "Оборудование")
+            if (typeNameListCombobox.SelectedItem != null)
             {
-                filter = builder.Not(builder.Exists("_t"));
+                keyItem = (KeyValuePair<Type, string>)typeNameListCombobox.SelectedItem;
+                Type selKey = keyItem.Key;
+                string selvalue = keyItem.Value;
             }
-            LoadedOborud2 = collection.Find(filter).ToList();
-            UpdateOborList2();
-            e.Handled = true;
         }
 
-        private void UpdateOborList2()
+        private void btn_LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
+            var req = (HttpWebRequest)WebRequest.Create(url);
+            req.Credentials = new NetworkCredential("august", "august08");
+            var response = req.GetResponse();
+            using (var reader = new System.IO.StreamReader(response.GetResponseStream()))
+            {
+                string responseBody = reader.ReadToEnd();
+                var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
+                foreach (var jobj in jarray)
+                {
+
+                    Oborudovanie obor = new Oborudovanie();
+                    bool containsItem = oborudovanies.Any(item => item.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
+                    if (containsItem)
+                    {
+                        var item = oborudovanies.Single(a => a.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
+                        Type type = item.GetType();
+                        obor = (Oborudovanie)Activator.CreateInstance(type);
+                    }
+                    obor.InvNum_OsnovnSredstva.Value = int.Parse(jobj["ИнвентарныйНомер"].ToString());
+                    obor.Name_OsnovnSredstva.Value = jobj["Наименование"].ToString();
+                    obor.ShifrByCalssificator_OsnovnSredstva.Value = int.Parse(jobj["Шифр"].ToString());
+                    obor.RUP_PartName.Value = jobj["ПодразделениеРУП"].ToString();
+                    obor.ORG_PartName.Value = jobj["Подразделение"].ToString();
+                    obor.Year_OsnovnSredstva.Value = int.Parse(jobj["ГодВыпуска"].ToString());
+                    obor.Vvod_v_Expl_Date.Value = DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd", CultureInfo.InvariantCulture);
+                    obor.MatOtv_Person.Value = jobj["МОЛ"].ToString();
+                    obor.Dislocation_OsnovnSredstva.Value = jobj["Местонахождение"].ToString();
+                    LoadedOborud.Add(obor);
+                }
+            }
+            //string connectionString = "mongodb://localhost:27017";
+            //MongoClient client = new MongoClient(connectionString);
+            //IMongoDatabase database = client.GetDatabase("BN");
+            //var collection = database.GetCollection<Oborudovanie>("BNCol");
+            //var cust1 = new BsonDocument();
+            //collection.InsertMany(LoadedOborud);
+            //string json = JsonConvert.SerializeObject(LoadedOborud, Formatting.Indented);
+            UpdateOborList();
+        }
+
+        private void UpdateOborList()
         {
             OborList = new Dictionary<int, string>();
-            for (int i = 0; i < LoadedOborud2.Count; i++)
+            for (int i = 0; i < LoadedOborud.Count; i++)
             {
-                OborList.Add(LoadedOborud2[i].InvNum_OsnovnSredstva.Value, LoadedOborud2[i].Name_OsnovnSredstva.Value.ToString());
+                OborList.Add(LoadedOborud[i].InvNum_OsnovnSredstva.Value, LoadedOborud[i].Name_OsnovnSredstva.Value.ToString());
             }
-            ListGrid1.ItemsSource = OborList;
+            ListGrid.ItemsSource = OborList;
         }
 
-        private void ListGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ListGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataGrid dataGrid = sender as DataGrid;
             if (dataGrid.SelectedIndex >= 0)
@@ -152,12 +133,16 @@ namespace Obotudavanie
                 DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
                 DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
                 int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
-                int selectedIndex = LoadedOborud2.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
+                int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
+                indexObor = selectedIndex;
 
                 DataSet dataSetData = new DataSet();
-                var a22 = LoadedOborud2[selectedIndex];
+                var a22 = LoadedOborud[selectedIndex];
 
-                Oborudovanie eEngine = LoadedOborud2[selectedIndex];
+                var item = typeNameList.Single(a => a.Key == a22.GetType());
+                TypeLable.Content = item.Value;
+
+                Oborudovanie eEngine = LoadedOborud[selectedIndex];
                 var listOfFields1 = eEngine.GetType().GetProperties().ToList();
                 IList<IAttribute> attList = new List<IAttribute>();
                 foreach (var a in listOfFields1)
@@ -165,109 +150,8 @@ namespace Obotudavanie
                     var propvalue = a.GetValue(eEngine, null) as IAttribute;
                     attList.Add(propvalue);
                 }
-                dtGrid_dataOutput1.ItemsSource = attList;
+                dtGrid_dataOutput.ItemsSource = attList;
             }
-        }
-
-        private string GetSelectedValue(DataGrid grid)
-        {
-            DataGridCellInfo cellInfo = grid.SelectedCells[0];
-            if (cellInfo == null) return null;
-
-            DataGridBoundColumn column = cellInfo.Column as DataGridBoundColumn;
-            if (column == null) return null;
-
-            FrameworkElement element = new FrameworkElement() { DataContext = cellInfo.Item };
-            BindingOperations.SetBinding(element, TagProperty, column.Binding);
-
-            return element.Tag.ToString();
-        }
-        private void ListGrid0_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            DataGrid dataGrid = sender as DataGrid;
-            DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
-
-            var oborud = oborudovanies_editor[dataGrid.SelectedIndex];
-            Console.WriteLine(oborud.GetType().ToString());
-            var listOfFields1 = oborud.GetType().GetProperties().ToList();
-            IList<IAttribute> attList = new List<IAttribute>();
-            foreach (var a in listOfFields1)
-            {
-                var propvalue = a.GetValue(oborud, null) as IAttribute;
-                attList.Add(propvalue);
-            }
-            ClassGrid.ItemsSource = attList;
-        }
-
-        private void btn_openFile_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openfile = new OpenFileDialog();
-            openfile.DefaultExt = ".xlsx";
-            openfile.Filter = "(.xlsx)|*.xlsx";
-            string path = "";
-
-            var browsefile = openfile.ShowDialog();
-
-            if (browsefile == true)
-            {
-                path = openfile.FileName;
-                IList<ElectroEngine> objExcelCon = excel.ReadExcel(path);
-                foreach (var obj in objExcelCon)
-                {
-                    bool containsItem = LoadedOborud.Any(item => item.InvNum_OsnovnSredstva.Value == obj.InvNum_OsnovnSredstva.Value);
-                    if (!containsItem)
-                    {
-                        LoadedOborud.Add(obj);
-                    }
-                }
-                UpdateOborList();
-            }
-
-        }
-
-        private void btn_GetData_Click(object sender, RoutedEventArgs e)
-        {
-            string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
-            var req = (HttpWebRequest)WebRequest.Create(url);
-            req.Credentials = new NetworkCredential("august", "august08");
-            var response = req.GetResponse();
-            using (var reader = new System.IO.StreamReader(response.GetResponseStream())) 
-            { 
-                string responseBody = reader.ReadToEnd();
-                var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
-                foreach (var jobj in jarray)
-                {
-                    if (!LoadedOborud.Any(item => item.InvNum_OsnovnSredstva.Value == int.Parse(jobj["ИнвентарныйНомер"].ToString())))
-                    {
-                        Oborudovanie obor = new Oborudovanie();
-                        bool containsItem = oborudovanies.Any(item => item.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
-                        if (containsItem)
-                        {
-                            var item = oborudovanies.Single(a => a.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
-                            Type type = item.GetType();
-                            obor = (Oborudovanie)Activator.CreateInstance(type);
-                        }
-                        obor.InvNum_OsnovnSredstva.Value = int.Parse(jobj["ИнвентарныйНомер"].ToString());
-                        obor.Name_OsnovnSredstva.Value = jobj["Наименование"].ToString();
-                        obor.ShifrByCalssificator_OsnovnSredstva.Value = int.Parse(jobj["Шифр"].ToString());
-                        obor.RUP_PartName.Value = jobj["ПодразделениеРУП"].ToString();
-                        obor.ORG_PartName.Value = jobj["Подразделение"].ToString();
-                        obor.Year_OsnovnSredstva.Value = int.Parse(jobj["ГодВыпуска"].ToString());
-                        obor.Vvod_v_Expl_Date.Value = DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd", CultureInfo.InvariantCulture);
-                        obor.MatOtv_Person.Value = jobj["МОЛ"].ToString();
-                        obor.Dislocation_OsnovnSredstva.Value = jobj["Местонахождение"].ToString();
-                        LoadedOborud.Add(obor);
-                    }
-                }
-            }
-            string connectionString = "mongodb://localhost:27017";
-            MongoClient client = new MongoClient(connectionString);
-            IMongoDatabase database = client.GetDatabase("BN");
-            var collection = database.GetCollection<Oborudovanie>("BNCol");
-            var cust1 = new BsonDocument();
-            collection.InsertMany(LoadedOborud);
-            string json = JsonConvert.SerializeObject(LoadedOborud, Formatting.Indented);
-            UpdateOborList();
         }
 
         private static async Task SaveDocs(List<Oborudovanie> Oborud)
@@ -280,37 +164,6 @@ namespace Obotudavanie
             cust1.Add("Items", new BsonArray(Oborud.Select(i =>
             i.ToBsonDocument())));
             await collection.InsertManyAsync(Oborud);
-        }
-
-        private void btn_GetData_Click2(object sender, RoutedEventArgs e)
-        {
-            //List<string> ToTable = new List<string>();
-            //string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
-            //var req = (HttpWebRequest)WebRequest.Create(url);
-            //req.Credentials = new NetworkCredential("august", "august08");
-            //var response = req.GetResponse();
-            //using (var reader = new System.IO.StreamReader(response.GetResponseStream()))
-            //{
-            //    string responseBody = reader.ReadToEnd();
-            //    var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
-            //    foreach (var jobj in jarray)
-            //    {
-            //        string str1 = jobj["Наименование"].ToString() + ";" + jobj["ИнвентарныйНомер"].ToString() + ";" + DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd", CultureInfo.InvariantCulture).ToString() + ";" + jobj["ГодВыпуска"].ToString() + ";" + jobj["МОЛ"].ToString() + ";" + jobj["Подразделение"].ToString() + ";" + jobj["Шифр"].ToString() + ";" + jobj["Местонахождение"].ToString() + ";" + jobj["ПодразделениеРУП"].ToString() + ";\n";
-            //        ToTable.Add(str1);
-            //    }
-            //    File.WriteAllLines("list.csv", ToTable);
-            //}
-            string connectionString = "mongodb://localhost";
-            var client = new MongoClient(connectionString);
-            var database = client.GetDatabase("BN");
-            var collection = database.GetCollection<Oborudovanie>("BNCol");
-            var filter = new BsonDocument();
-            var BNCol = collection.Find(filter).ToList();
-            foreach (var doc in BNCol)
-            {
-                Console.WriteLine(doc);
-            }
-            FindDocs();
         }
 
         private static async Task FindDocs()
@@ -327,93 +180,65 @@ namespace Obotudavanie
             }
         }
 
-        private void ListGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void btn_TypeChangeButton_Click(object sender, RoutedEventArgs e)
         {
-            DataGrid dataGrid = sender as DataGrid;
-            if (dataGrid.SelectedIndex >= 0)
+            try
             {
-                DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
-                DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
-                int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
-                int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
-
-                DataSet dataSetData = new DataSet();
-                var a22 = LoadedOborud[selectedIndex];
-
-                Oborudovanie eEngine = LoadedOborud[selectedIndex];
-                var listOfFields1 = eEngine.GetType().GetProperties().ToList();
-                IList<IAttribute> attList = new List<IAttribute>();
-                foreach (var a in listOfFields1)
+                if (indexObor >= 0 && LoadedOborud.Count>0)
                 {
-                    var propvalue = a.GetValue(eEngine, null) as IAttribute;
-                    attList.Add(propvalue);
+                    var a = LoadedOborud[indexObor];
+                    Console.WriteLine(LoadedOborud[indexObor].GetType().ToString());
+                    LoadedOborud[indexObor] = (Oborudovanie)Activator.CreateInstance(keyItem.Key);
+
+                    LoadedOborud[indexObor].InvNum_OsnovnSredstva.Value = a.InvNum_OsnovnSredstva.Value;
+                    LoadedOborud[indexObor].Name_OsnovnSredstva.Value = a.Name_OsnovnSredstva.Value;
+                    LoadedOborud[indexObor].ShifrByCalssificator_OsnovnSredstva.Value = a.ShifrByCalssificator_OsnovnSredstva.Value;
+                    LoadedOborud[indexObor].RUP_PartName.Value = a.RUP_PartName.Value;
+                    LoadedOborud[indexObor].ORG_PartName.Value = a.ORG_PartName.Value;
+                    LoadedOborud[indexObor].Year_OsnovnSredstva.Value = a.Year_OsnovnSredstva.Value;
+                    LoadedOborud[indexObor].Vvod_v_Expl_Date.Value = a.Vvod_v_Expl_Date.Value;
+                    LoadedOborud[indexObor].MatOtv_Person.Value = a.MatOtv_Person.Value;
+                    LoadedOborud[indexObor].Dislocation_OsnovnSredstva.Value = a.Dislocation_OsnovnSredstva.Value;
+
+                    Console.WriteLine(LoadedOborud[indexObor].GetType().ToString());
+
+                    var item = typeNameList.Single(c => c.Key == LoadedOborud[indexObor].GetType());
+                    TypeLable.Content = item.Value;
+
+                    Oborudovanie eEngine = LoadedOborud[indexObor];
+                    var listOfFields1 = eEngine.GetType().GetProperties().ToList();
+                    IList<IAttribute> attList = new List<IAttribute>();
+                    foreach (var b in listOfFields1)
+                    {
+                        var propvalue = b.GetValue(eEngine, null) as IAttribute;
+                        attList.Add(propvalue);
+                    }
+                    dtGrid_dataOutput.ItemsSource = attList;
                 }
-                dtGrid_dataOutput.ItemsSource = attList;
             }
-        }
-
-        private void button1_Click(object sender, RoutedEventArgs e)
-        {
-            //using (ExcelEngine excelEngine = new ExcelEngine())
-            //{
-            //IApplication application = excelEngine.Excel;
-            //application.DefaultVersion = ExcelVersion.Excel2016;
-
-            ////Assign the data to the customerObjects collection.
-            //System.Collections.IEnumerable customerObjects = dsOborudovanieInfoList;
-
-            ////Create a new workbook.
-            //IWorkbook workbook = application.Workbooks.Create(1);
-            //IWorksheet sheet = workbook.Worksheets[0];
-
-            ////Import data from customerObjects collection.
-            //sheet.ImportData(customerObjects, 1, 1, false);
-
-            //sheet.UsedRange.AutofitColumns();
-
-            ////Save the file in the given path.
-            //Stream excelStream = File.Create(Path.GetFullPath(@"Output.xlsx"));
-            //workbook.SaveAs(excelStream);
-            //excelStream.Dispose();              
-
-            //}
-        }
-
-        private void UpdateOborList()
-        {
-            OborList = new Dictionary<int, string>();
-            for (int i = 0; i < LoadedOborud.Count; i++)
+            catch (Exception ex)
             {
-                OborList.Add(LoadedOborud[i].InvNum_OsnovnSredstva.Value, LoadedOborud[i].Name_OsnovnSredstva.Value.ToString());
+                MessageBox.Show(ex.Message);
             }
-            ListGrid.ItemsSource = OborList;
 
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Auto
-            };
-            File.WriteAllText("BD.json", JsonConvert.SerializeObject(LoadedOborud, settings));
         }
 
-        void dtGrid_dataOutput_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private void btn_SaveAllButton_Click(object sender, RoutedEventArgs e)
         {
-            //if (e.EditAction == DataGridEditAction.Commit)
-            //{
-            //    var column = e.Column as DataGridBoundColumn;
-            //    if (column != null)
-            //    {
-            //        var bindingPath = (column.Binding as Binding).Path.Path;
-            //            int rowIndex = e.Row.GetIndex();
-            //        var MyRow = e.Row.Item.GetType().ToString();
-
-            //            // rowIndex has the row index
-            //            // bindingPath has the column's binding
-            //            // el.Text has the new, user-entered value
-            //    }
-            //}
-
+            try
+            {
+                string connectionString = "mongodb://localhost:27017";
+                MongoClient client = new MongoClient(connectionString);
+                IMongoDatabase database = client.GetDatabase("BN");
+                var collection = database.GetCollection<Oborudovanie>("BNCol");
+                var cust1 = new BsonDocument();
+                collection.InsertMany(LoadedOborud);
+                string json = JsonConvert.SerializeObject(LoadedOborud, Formatting.Indented);
+            }
+            catch (Exception ex) { }
+            MessageBox.Show("Данные сохранены");
+            this.Close();
         }
-
     }
 }
 
