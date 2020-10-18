@@ -17,6 +17,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Obotudavanie
 {
@@ -99,7 +100,12 @@ namespace Obotudavanie
             ListGrid01.ItemsSource = namesList2;
 
         }
-
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+            var accentBrush = TryFindResource("AccentColorBrush") as SolidColorBrush;
+            if (accentBrush != null) accentBrush.Color.CreateAccentColors();
+        }
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             ListGrid1.Visibility = Visibility.Collapsed;

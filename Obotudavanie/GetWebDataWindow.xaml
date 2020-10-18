@@ -114,10 +114,10 @@
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
-        <Button x:Name="LoadButton" Content="Загрузить данные" HorizontalAlignment="Left" VerticalAlignment="Top" Width="169" Margin="6,3,0,0" Click="btn_LoadButton_Click"/>
+        <Button x:Name="LoadButton" Content="Загрузить данные" HorizontalAlignment="Left" VerticalAlignment="Top" Width="169" Margin="6,3,0,0" Click="btn_LoadButton_Click" Height="26"/>
         <ComboBox x:Name="typeNameListCombobox" ItemsSource="{Binding typeNameList}" SelectedValuePath="Key" DisplayMemberPath="Value" SelectedIndex="0" SelectionChanged="typeNameListCombobox_SelectionChanged" HorizontalAlignment="Left" Margin="230,3,0,0" VerticalAlignment="Top" Width="240" Height="26" Grid.Column="1"/>
-        <Button x:Name="TypeChangeButton" Content="Изменить тип" HorizontalAlignment="Left" Margin="475,3,0,0" VerticalAlignment="Top" Width="129" Click="btn_TypeChangeButton_Click" Grid.Column="1"/>
-        <Button x:Name="SaveAllButton" Content="Сохранить всё" HorizontalAlignment="Left" Margin="609,3,0,0" VerticalAlignment="Top" Width="136" Click="btn_SaveAllButton_Click" Grid.Column="1"/>
+        <Button x:Name="TypeChangeButton" Content="Изменить тип" HorizontalAlignment="Left" Margin="475,3,0,0" VerticalAlignment="Top" Width="129" Click="btn_TypeChangeButton_Click" Grid.Column="1" Height="26"/>
+        <Button x:Name="SaveAllButton" Content="Сохранить всё" HorizontalAlignment="Left" Margin="609,3,0,0" VerticalAlignment="Top" Width="136" Click="btn_SaveAllButton_Click" Grid.Column="1" Height="26"/>
         <Label Content="Текущий тип: " HorizontalAlignment="Left" Margin="180,0,0,0" VerticalAlignment="Top"/>
         <Label x:Name="TypeLable" Content=" " HorizontalAlignment="Left" Margin="292,0,0,0" VerticalAlignment="Top" Width="233" Grid.ColumnSpan="2"/>
         <!--<Button x:Name="btn_openFile" Click="btn_openFile_Click" Content="Открыть файл" HorizontalAlignment="Left" Height="29" Margin="27,39,0,0" VerticalAlignment="Top" Width="195" />-->
