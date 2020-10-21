@@ -48,11 +48,11 @@ namespace Obotudavanie
             UpdateOborList();
 
             oborudovanies.AddRange(new List<Oborudovanie>()
-            { 
+            {
                 new KPT(),
-                new ElectroEngine(), 
-                new Kotel(), 
-                new Nasos(), 
+                new ElectroEngine(),
+                new Kotel(),
+                new Nasos(),
                 new HeatExchanger(),
                 new PowerTransformator(),
                 new SNK_ControlStation()
@@ -72,9 +72,9 @@ namespace Obotudavanie
 
             Dictionary<int, string> namesList = new Dictionary<int, string>();
             Dictionary<int, string> namesList2 = new Dictionary<int, string>();
-            for (int i = 0; i<oborudovanies.Count; i++)
+            for (int i = 0; i < oborudovanies.Count; i++)
             {
-                namesList.Add((i+1), oborudovanies[i].Name_OsnovnSredstva.Value);
+                namesList.Add((i + 1), oborudovanies[i].Name_OsnovnSredstva.Value);
             }
 
             for (int i = 0; i < oborudovanies_editor.Count; i++)
@@ -207,18 +207,13 @@ namespace Obotudavanie
                 {
                     textColumn.Header = (propvalue as Classes.Attribute<DateTime>).Name;
                 }
-                textColumn.Binding =new Binding(string.Format("[{0}]", i));
+                textColumn.Binding = new Binding(string.Format("[{0}]", i));
                 dtGrid_dataOutput1.Columns.Add(textColumn);
                 i++;
             }
-           dtGrid_dataOutput1.ItemsSource = listoflists;
-            foreach (var col in dtGrid_dataOutput1.Columns)
-            {
-                if (col.Header.ToString() == "Наименование основного средства ")
-                {
-                    col.DisplayIndex = 0;
-                }
-            }
+            dtGrid_dataOutput1.ItemsSource = listoflists;
+            int colindex = dtGrid_dataOutput1.Columns.IndexOf(dtGrid_dataOutput1.Columns.FirstOrDefault(c => c.Header.ToString() == "Наименование основного средства "));
+            dtGrid_dataOutput1.Columns[colindex].DisplayIndex = 0;
             // ClassGrid.ItemsSource = attList;
         }
 
