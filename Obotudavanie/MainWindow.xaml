@@ -155,14 +155,14 @@
                         <ColumnDefinition Width="2" />
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid x:Name="dtGrid_dataOutput1" Grid.Column="2" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}"  >
-                        <DataGrid.Columns>
+                    <DataGrid x:Name="dtGrid_dataOutput1" CanUserAddRows="false" Grid.Column="2" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}"  >
+                        <!--<DataGrid.Columns>
                             <DataGridTextColumn Header="Наименование" Binding="{Binding Name}"/>
                             <DataGridTextColumn Header="Тип" Binding="{Binding Type}"/>
                             <DataGridTextColumn Header="Значение" Binding="{Binding Value}"/>
                             <DataGridTextColumn Visibility="Collapsed" Header="Умолчание" Binding="{Binding DefValue}"/>
                             <DataGridTextColumn Header="Ед изм" Binding="{Binding EdIzm}"/>
-                        </DataGrid.Columns>
+                        </DataGrid.Columns>-->
                     </DataGrid>
                     <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,1,0" />
                     <DataGrid x:Name="ListGrid1" Grid.Column="0" Visibility="Collapsed" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid1_SelectionChanged" Margin="0,27,0,0">
@@ -171,7 +171,7 @@
                             <DataGridTextColumn Header="Наименование" Binding="{Binding Value}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <DataGrid x:Name="ListGrid01" Grid.Column="0"  AutoGenerateColumns="false" Margin="0,27,0,-34"  ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid0_SelectionChanged">
+                    <DataGrid x:Name="ListGrid01" Grid.Column="0"  AutoGenerateColumns="false" Margin="0,27,0,-34"  ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid01_SelectionChanged">
 
                         <DataGrid.Resources>
                             <Style TargetType="{x:Type DataGridRow}">

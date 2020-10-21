@@ -25,15 +25,12 @@ namespace Obotudavanie
     /// </summary>
     public partial class GetWebDataWindow : System.Windows.Window
     {
-        Excel excel = new Excel();
         int indexObor = 0;
         List<Oborudovanie> LoadedOborud = new List<Oborudovanie>();
-        List<Oborudovanie> LoadedOborud2 = new List<Oborudovanie>();
         List<Oborudovanie> oborudovanies = new List<Oborudovanie>();
-        List<Oborudovanie> oborudovanies_editor = new List<Oborudovanie>();
         Dictionary<int, string> namesList = new Dictionary<int, string>();
         public KeyValuePair<Type, string> keyItem { get; set; }
-        public Dictionary<Type, string> typeNameList { get; set; }
+        public Dictionary<Type, string> TypeNameList { get; set; }
         Dictionary<int, string> OborList = new Dictionary<int, string>();
 
         public GetWebDataWindow()
@@ -52,13 +49,13 @@ namespace Obotudavanie
                 new Oborudovanie()
             });
 
-            typeNameList = new Dictionary<Type, string>();
+            TypeNameList = new Dictionary<Type, string>();
             for (int i = 0; i < oborudovanies.Count; i++)
             {
                 namesList.Add(i, oborudovanies[i].Name_OsnovnSredstva.Value);
-                typeNameList.Add(oborudovanies[i].GetType(), oborudovanies[i].Name_OsnovnSredstva.Value);
+                TypeNameList.Add(oborudovanies[i].GetType(), oborudovanies[i].Name_OsnovnSredstva.Value);
             }
-            typeNameListCombobox.ItemsSource = typeNameList;
+            typeNameListCombobox.ItemsSource = TypeNameList;
             typeNameListCombobox.SelectedIndex = 0;
         }
 
@@ -139,7 +136,7 @@ namespace Obotudavanie
                 DataSet dataSetData = new DataSet();
                 var a22 = LoadedOborud[selectedIndex];
 
-                var item = typeNameList.Single(a => a.Key == a22.GetType());
+                var item = TypeNameList.Single(a => a.Key == a22.GetType());
                 TypeLable.Content = item.Value;
 
                 Oborudovanie eEngine = LoadedOborud[selectedIndex];
@@ -202,7 +199,7 @@ namespace Obotudavanie
 
                     Console.WriteLine(LoadedOborud[indexObor].GetType().ToString());
 
-                    var item = typeNameList.Single(c => c.Key == LoadedOborud[indexObor].GetType());
+                    var item = TypeNameList.Single(c => c.Key == LoadedOborud[indexObor].GetType());
                     TypeLable.Content = item.Value;
 
                     Oborudovanie eEngine = LoadedOborud[indexObor];

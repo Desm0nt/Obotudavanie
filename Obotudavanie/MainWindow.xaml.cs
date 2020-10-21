@@ -18,6 +18,7 @@ using MongoDB.Driver;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Collections.ObjectModel;
 
 namespace Obotudavanie
 {
@@ -92,7 +93,6 @@ namespace Obotudavanie
             ListGrid01.ItemsSource = namesList2;
         }
 
-
         #region выбор
         private void ListGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -103,8 +103,6 @@ namespace Obotudavanie
                 DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
                 int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
                 int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
-
-                DataSet dataSetData = new DataSet();
                 var a22 = LoadedOborud[selectedIndex];
 
                 Oborudovanie eEngine = LoadedOborud[selectedIndex];
@@ -135,6 +133,94 @@ namespace Obotudavanie
             }
             ClassGrid.ItemsSource = attList;
         }
+        private void ListGrid01_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataGrid dataGrid = sender as DataGrid;
+            dtGrid_dataOutput1.Columns.Clear();
+            DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
+            var oborud = oborudovanies_editor[dataGrid.SelectedIndex];
+            KeyValuePair<int, string> item = (KeyValuePair<int, string>)row.Item;
+            Console.WriteLine(oborud.GetType().Name.ToString());
+            string connectionString = "mongodb://localhost";
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var builder = Builders<Oborudovanie>.Filter;
+            var filter = builder.Eq("_t", oborud.GetType().Name.ToString());
+            if (item.Value == "Оборудование")
+            {
+                filter = builder.Not(builder.Exists("_t"));
+            }
+            LoadedOborud2 = collection.Find(filter).ToList();
+            ObservableCollection<ObservableCollection<string>> listoflists = new ObservableCollection<ObservableCollection<string>>();
+            ObservableCollection<string> listofItems = new ObservableCollection<string>();
+            foreach (var obor in LoadedOborud2)
+            {
+                listofItems = new ObservableCollection<string>();
+                var listOfFields2 = obor.GetType().GetProperties().ToList();
+                IList<IAttribute> attList2 = new List<IAttribute>();
+                foreach (var bb in listOfFields2)
+                {
+                    var propvalue = bb.GetValue(obor, null) as IAttribute;
+                    if (propvalue.GetType().GenericTypeArguments[0] == typeof(double))
+                    {
+                        listofItems.Add((propvalue as Classes.Attribute<double>).Value.ToString());
+                    }
+                    else if (propvalue.GetType().GenericTypeArguments[0] == typeof(string))
+                    {
+                        listofItems.Add((propvalue as Classes.Attribute<string>).Value.ToString());
+                    }
+                    else if (propvalue.GetType().GenericTypeArguments[0] == typeof(int))
+                    {
+                        listofItems.Add((propvalue as Classes.Attribute<int>).Value.ToString());
+                    }
+                    else if (propvalue.GetType().GenericTypeArguments[0] == typeof(DateTime))
+                    {
+                        listofItems.Add((propvalue as Classes.Attribute<DateTime>).Value.ToString());
+                    }
+                }
+                listoflists.Add(listofItems);
+
+            }
+            var listOfFields1 = oborud.GetType().GetProperties().ToList();
+            IList<IAttribute> attList = new List<IAttribute>();
+            int i = 0;
+            foreach (var a in listOfFields1)
+            {
+                var propvalue = a.GetValue(oborud, null) as IAttribute;
+                attList.Add(propvalue);
+
+                DataGridTextColumn textColumn = new DataGridTextColumn();
+                if (propvalue.GetType().GenericTypeArguments[0] == typeof(double))
+                {
+                    textColumn.Header = (propvalue as Classes.Attribute<double>).Name;
+                }
+                else if (propvalue.GetType().GenericTypeArguments[0] == typeof(string))
+                {
+                    textColumn.Header = (propvalue as Classes.Attribute<string>).Name;
+                }
+                else if (propvalue.GetType().GenericTypeArguments[0] == typeof(int))
+                {
+                    textColumn.Header = (propvalue as Classes.Attribute<int>).Name;
+                }
+                else if (propvalue.GetType().GenericTypeArguments[0] == typeof(DateTime))
+                {
+                    textColumn.Header = (propvalue as Classes.Attribute<DateTime>).Name;
+                }
+                textColumn.Binding =new Binding(string.Format("[{0}]", i));
+                dtGrid_dataOutput1.Columns.Add(textColumn);
+                i++;
+            }
+           dtGrid_dataOutput1.ItemsSource = listoflists;
+            foreach (var col in dtGrid_dataOutput1.Columns)
+            {
+                if (col.Header.ToString() == "Наименование основного средства ")
+                {
+                    col.DisplayIndex = 0;
+                }
+            }
+            // ClassGrid.ItemsSource = attList;
+        }
 
         private void ListGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -146,7 +232,6 @@ namespace Obotudavanie
                 int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
                 int selectedIndex = LoadedOborud2.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
 
-                DataSet dataSetData = new DataSet();
                 var a22 = LoadedOborud2[selectedIndex];
 
                 Oborudovanie eEngine = LoadedOborud2[selectedIndex];
@@ -428,6 +513,7 @@ namespace Obotudavanie
             LoadedOborud = collection.Find(filter).ToList();
             UpdateOborList();
         }
+
     }
 }
 
