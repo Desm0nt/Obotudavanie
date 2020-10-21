@@ -509,6 +509,13 @@ namespace Obotudavanie
             UpdateOborList();
         }
 
+        private void btn_PopUp_Click(object sender, RoutedEventArgs e)
+        {
+            if (popup1.IsOpen == true)
+                popup1.IsOpen = false;
+            else if (popup1.IsOpen == false)
+                popup1.IsOpen = true;
+        }
     }
 }
 

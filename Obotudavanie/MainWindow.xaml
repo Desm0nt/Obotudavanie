@@ -84,6 +84,11 @@
     </Window.Resources>
 
     <Grid Background="#FFF1F1F1">
+        <Popup x:Name="popup1" StaysOpen="true" Placement="Mouse" MaxWidth="1280" AllowsTransparency="True">
+            <TextBlock TextWrapping="Wrap" Width="180" Background="LightPink" Opacity="0.8" >
+            Чтобы узнать больше, посетите сайт metanit.com
+            </TextBlock>
+        </Popup>
         <Menu VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" Grid.ColumnSpan="2">
             <MenuItem Header="Файл" Height="22">
                 <MenuItem Header="Открыть"  x:Name="OpenFile" Click="btn_openFile_Click"/>
@@ -193,6 +198,7 @@
         <!--<Button x:Name="btn_openFile" Click="btn_openFile_Click" Content="Открыть файл" HorizontalAlignment="Left" Height="29" Margin="27,39,0,0" VerticalAlignment="Top" Width="195" />-->
         <!--<ComboBox x:Name="cmbox_dataSelection" Visibility="Hidden" SelectionChanged="cmbox_dataSelection_SelectionChanged" FontSize="15" FontWeight="Light"  HorizontalAlignment="Left" Margin="10,191,0,0"  VerticalAlignment="Top" Width="233" Height="32"/>-->
         <Label x:Name="lbl_dataSelection" Content="Выберите ЭД" Visibility="Hidden" HorizontalAlignment="Left" Margin="10,165,0,0" VerticalAlignment="Top" Width="212"/>
+        <Button x:Name="PopUpButton" Content="Button" HorizontalAlignment="Left" Margin="204,3,0,0" VerticalAlignment="Top" Width="55" Height="16" FontSize="10" Click="btn_PopUp_Click"/>
 
     </Grid>
 </Window> 
