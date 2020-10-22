@@ -85,9 +85,13 @@
 
     <Grid Background="#FFF1F1F1">
         <Popup x:Name="popup1" StaysOpen="true" Placement="Mouse" MaxWidth="1280" AllowsTransparency="True">
-            <TextBlock TextWrapping="Wrap" Width="180" Background="LightPink" Opacity="0.8" >
-            Чтобы узнать больше, посетите сайт metanit.com
-            </TextBlock>
+            <ListBox ItemsSource="{Binding TheList}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding TheText}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Popup>
         <Menu VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" Grid.ColumnSpan="2">
             <MenuItem Header="Файл" Height="22">
@@ -178,11 +182,11 @@
                     </DataGrid>
                     <DataGrid x:Name="ListGrid01" Grid.Column="0"  AutoGenerateColumns="false" Margin="0,27,0,-34"  ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid01_SelectionChanged">
 
-                        <DataGrid.Resources>
+                        <!--<DataGrid.Resources>
                             <Style TargetType="{x:Type DataGridRow}">
                                 <EventSetter Event="Control.MouseDoubleClick" Handler="ListGrid01_Row_DoubleClick"/>
                             </Style>
-                        </DataGrid.Resources>
+                        </DataGrid.Resources>-->
 
                         <DataGrid.Columns>
                             <DataGridTextColumn Visibility="Collapsed" Header="Номер" Binding="{Binding Key}"/>

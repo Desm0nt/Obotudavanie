@@ -33,10 +33,16 @@ namespace Obotudavanie
         List<Oborudovanie> oborudovanies = new List<Oborudovanie>();
         List<Oborudovanie> oborudovanies_editor = new List<Oborudovanie>();
         Dictionary<int, string> OborList = new Dictionary<int, string>();
+        public ObservableCollection<BoolStringClass> TheList { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+
+            TheList = new ObservableCollection<BoolStringClass>();
+            TheList.Add(new BoolStringClass { IsSelected = true, TheText = "Some text for item #1" });
+
+            this.DataContext = this;
 
             dtGrid_dataOutput.CellEditEnding += dtGrid_dataOutput_CellEditEnding;
             string connectionString = "mongodb://localhost";
@@ -515,6 +521,12 @@ namespace Obotudavanie
                 popup1.IsOpen = false;
             else if (popup1.IsOpen == false)
                 popup1.IsOpen = true;
+        }
+
+        public class BoolStringClass
+        {
+            public string TheText { get; set; }
+            public bool IsSelected { get; set; }
         }
     }
 }
