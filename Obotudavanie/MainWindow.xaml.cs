@@ -519,6 +519,7 @@ namespace Obotudavanie
         }
         public void subWindowClosed(object sender, System.EventArgs e)
         {
+            this.Activate();
             string connectionString = "mongodb://localhost";
             var client = new MongoClient(connectionString);
             var database = client.GetDatabase("BN");
