@@ -229,10 +229,18 @@ namespace Obotudavanie
                 IMongoDatabase database = client.GetDatabase("BN");
                 var collection = database.GetCollection<Oborudovanie>("BNCol");
                 var cust1 = new BsonDocument();
-                collection.InsertMany(LoadedOborud);
+                var builder = Builders<Oborudovanie>.Filter;
+                
+
+                foreach (var obor in LoadedOborud)
+                {
+                   var filter = builder.Eq("_id", obor.InvNum_OsnovnSredstva.ToBsonDocument());
+                   var result = collection.ReplaceOne(filter, obor, new UpdateOptions { IsUpsert = true });
+                   //collection.InsertOne(obor);
+                }
                 string json = JsonConvert.SerializeObject(LoadedOborud, Formatting.Indented);
             }
-            catch (Exception ex) { }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
             MessageBox.Show("Данные сохранены");
             this.Close();
         }

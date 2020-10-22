@@ -106,6 +106,7 @@ namespace Obotudavanie
             if (dataGrid.SelectedIndex >= 0)
             {
                 DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
+
                 DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
                 int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
                 int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
@@ -128,7 +129,12 @@ namespace Obotudavanie
             DataGrid dataGrid = sender as DataGrid;
             DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
 
-            var oborud = oborudovanies_editor[dataGrid.SelectedIndex];
+            DataGridCell RowColumn = dataGrid.Columns[1].GetCellContent(row).Parent as DataGridCell;
+            var CellValue = ((TextBlock)RowColumn.Content).Text;
+
+            int selectedIndex = oborudovanies_editor.FindIndex(a => a.Name_OsnovnSredstva.Value == CellValue);
+
+            var oborud = oborudovanies_editor[selectedIndex];
             Console.WriteLine(oborud.GetType().ToString());
             var listOfFields1 = oborud.GetType().GetProperties().ToList();
             IList<IAttribute> attList = new List<IAttribute>();
@@ -144,7 +150,14 @@ namespace Obotudavanie
             DataGrid dataGrid = sender as DataGrid;
             dtGrid_dataOutput1.Columns.Clear();
             DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
-            var oborud = oborudovanies_editor[dataGrid.SelectedIndex];
+
+            DataGridCell RowColumn = dataGrid.Columns[1].GetCellContent(row).Parent as DataGridCell;
+            var CellValue = ((TextBlock)RowColumn.Content).Text;
+
+            int selectedIndex = oborudovanies_editor.FindIndex(a => a.Name_OsnovnSredstva.Value == CellValue);
+
+            var oborud = oborudovanies_editor[selectedIndex];
+
             KeyValuePair<int, string> item = (KeyValuePair<int, string>)row.Item;
             Console.WriteLine(oborud.GetType().Name.ToString());
             string connectionString = "mongodb://localhost";
