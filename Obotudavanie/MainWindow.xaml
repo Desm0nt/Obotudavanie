@@ -84,11 +84,11 @@
     </Window.Resources>
 
     <Grid Background="#FFF1F1F1">
-        <Popup x:Name="popup1" StaysOpen="true" Placement="Mouse" MaxWidth="1280" AllowsTransparency="True">
+        <Popup x:Name="popup1" StaysOpen="false" Placement="Mouse" MaxWidth="1280" AllowsTransparency="True">
             <ListBox ItemsSource="{Binding TheList}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding TheText}"/>
+                        <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding TheText}" Checked="checkBox1_changed" Unchecked="checkBox1_changed"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -106,7 +106,7 @@
                 <MenuItem Header="Запросить данные"  x:Name="GetData2" Click="btn_GetData_Click2"/>
             </MenuItem>-->
         </Menu>
-        <TabControl Margin="0,23,0,0" Style="{StaticResource AccentTabControl}">
+        <TabControl x:Name="mainTabControl" Margin="0,23,0,0" Style="{StaticResource AccentTabControl}" SelectionChanged="mainTabControl_SelectionChanged">
             <TabItem Header="Классификатор" FontFamily="Segoe UI" FontSize="12">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
@@ -172,7 +172,7 @@
                             <DataGridTextColumn Visibility="Collapsed" Header="Умолчание" Binding="{Binding DefValue}"/>
                             <DataGridTextColumn Header="Ед изм" Binding="{Binding EdIzm}"/>
                         </DataGrid.Columns>-->
-                        
+
                     </DataGrid>
                     <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,1,0" />
                     <DataGrid x:Name="ListGrid1" Grid.Column="0" Visibility="Collapsed" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid1_SelectionChanged" Margin="0,27,0,0">
@@ -203,7 +203,7 @@
         <!--<Button x:Name="btn_openFile" Click="btn_openFile_Click" Content="Открыть файл" HorizontalAlignment="Left" Height="29" Margin="27,39,0,0" VerticalAlignment="Top" Width="195" />-->
         <!--<ComboBox x:Name="cmbox_dataSelection" Visibility="Hidden" SelectionChanged="cmbox_dataSelection_SelectionChanged" FontSize="15" FontWeight="Light"  HorizontalAlignment="Left" Margin="10,191,0,0"  VerticalAlignment="Top" Width="233" Height="32"/>-->
         <Label x:Name="lbl_dataSelection" Content="Выберите ЭД" Visibility="Hidden" HorizontalAlignment="Left" Margin="10,165,0,0" VerticalAlignment="Top" Width="212"/>
-        <Button x:Name="PopUpButton" Content="Button" HorizontalAlignment="Left" Margin="204,3,0,0" VerticalAlignment="Top" Width="55" Height="16" FontSize="10" Click="btn_PopUp_Click"/>
+        <Button x:Name="PopUpButton" Content="🞃" HorizontalAlignment="Right" Margin="0,23,0,0" VerticalAlignment="Top" Width="23" Height="21" FontSize="11" Click="btn_PopUp_Click"/>
 
     </Grid>
 </Window> 

@@ -40,7 +40,6 @@ namespace Obotudavanie
             InitializeComponent();
 
             TheList = new ObservableCollection<BoolStringClass>();
-            TheList.Add(new BoolStringClass { IsSelected = true, TheText = "Some text for item #1" });
 
             this.DataContext = this;
 
@@ -123,7 +122,6 @@ namespace Obotudavanie
                 dtGrid_dataOutput.ItemsSource = attList;
             }
         }
-
         private void ListGrid0_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataGrid dataGrid = sender as DataGrid;
@@ -147,6 +145,7 @@ namespace Obotudavanie
         }
         private void ListGrid01_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            //TheList = new ObservableCollection<BoolStringClass>();
             DataGrid dataGrid = sender as DataGrid;
             dtGrid_dataOutput1.Columns.Clear();
             DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
@@ -202,6 +201,8 @@ namespace Obotudavanie
 
             }
             var listOfFields1 = oborud.GetType().GetProperties().ToList();
+
+            TheList.Clear();
             IList<IAttribute> attList = new List<IAttribute>();
             int i = 0;
             foreach (var a in listOfFields1)
@@ -210,6 +211,7 @@ namespace Obotudavanie
                 attList.Add(propvalue);
 
                 DataGridTextColumn textColumn = new DataGridTextColumn();
+                textColumn.Header = "";
                 if (propvalue.GetType().GenericTypeArguments[0] == typeof(double))
                 {
                     textColumn.Header = (propvalue as Classes.Attribute<double>).Name;
@@ -228,6 +230,7 @@ namespace Obotudavanie
                 }
                 textColumn.Binding = new Binding(string.Format("[{0}]", i));
                 dtGrid_dataOutput1.Columns.Add(textColumn);
+                TheList.Add(new BoolStringClass { IsSelected = true, TheText = textColumn.Header.ToString() });
                 i++;
             }
             dtGrid_dataOutput1.ItemsSource = listoflists;
@@ -235,7 +238,6 @@ namespace Obotudavanie
             dtGrid_dataOutput1.Columns[colindex].DisplayIndex = 0;
             // ClassGrid.ItemsSource = attList;
         }
-
         private void ListGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataGrid dataGrid = sender as DataGrid;
@@ -259,7 +261,6 @@ namespace Obotudavanie
                 dtGrid_dataOutput1.ItemsSource = attList;
             }
         }
-
         private void ListGrid01_Row_DoubleClick(object sender, MouseButtonEventArgs e)
         {
             ListGrid01.Visibility = Visibility.Collapsed;
@@ -285,7 +286,6 @@ namespace Obotudavanie
             UpdateOborList2();
             e.Handled = true;
         }
-
         #endregion
 
         #region buttons
@@ -528,7 +528,6 @@ namespace Obotudavanie
             LoadedOborud = collection.Find(filter).ToList();
             UpdateOborList();
         }
-
         private void btn_PopUp_Click(object sender, RoutedEventArgs e)
         {
             if (popup1.IsOpen == true)
@@ -536,11 +535,38 @@ namespace Obotudavanie
             else if (popup1.IsOpen == false)
                 popup1.IsOpen = true;
         }
-
         public class BoolStringClass
         {
             public string TheText { get; set; }
             public bool IsSelected { get; set; }
+        }
+        private void mainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var tc = sender as TabControl; //The sender is a type of TabControl...
+
+            if (tc != null)
+            {
+                var item = tc.SelectedItem as TabItem;
+                if (item.Header.ToString() == "Редактор2")
+                {
+                    PopUpButton.Visibility = Visibility.Visible;
+                }
+                else
+                    PopUpButton.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void checkBox1_changed(object sender, RoutedEventArgs e)
+        {
+            var cb = sender as CheckBox;
+            int colindex = dtGrid_dataOutput1.Columns.IndexOf(dtGrid_dataOutput1.Columns.FirstOrDefault(c => c.Header.ToString() == cb.Content.ToString()));
+            if (cb.IsChecked == false)
+            {
+                dtGrid_dataOutput1.Columns[colindex].Visibility = Visibility.Collapsed;
+            }
+            else if (cb.IsChecked == true)
+            {
+                dtGrid_dataOutput1.Columns[colindex].Visibility = Visibility.Visible;
+            }
         }
     }
 }
