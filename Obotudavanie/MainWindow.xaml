@@ -99,12 +99,12 @@
                 <MenuItem Header="Выход" />
             </MenuItem>
             <MenuItem Header="Данные" Height="22">
-                <MenuItem Header="Запросить данные"  x:Name="GetData" Click="btn_GetData_Click"/>
-                <MenuItem Header="Запросить данные (окно)"  x:Name="GetDataWindow" Click="btn_GetDataWindow_Click"/>
+                <!--<MenuItem Header="Запросить данные"  x:Name="GetData" Click="btn_GetData_Click"/>-->
+                <MenuItem Header="Запросить данные"  x:Name="GetDataWindow" Click="btn_GetDataWindow_Click"/>
             </MenuItem>
-            <MenuItem Header="Данные2" Height="22">
+            <!--<MenuItem Header="Данные2" Height="22">
                 <MenuItem Header="Запросить данные"  x:Name="GetData2" Click="btn_GetData_Click2"/>
-            </MenuItem>
+            </MenuItem>-->
         </Menu>
         <TabControl Margin="0,23,0,0" Style="{StaticResource AccentTabControl}">
             <TabItem Header="Классификатор" FontFamily="Segoe UI" FontSize="12">
@@ -172,6 +172,7 @@
                             <DataGridTextColumn Visibility="Collapsed" Header="Умолчание" Binding="{Binding DefValue}"/>
                             <DataGridTextColumn Header="Ед изм" Binding="{Binding EdIzm}"/>
                         </DataGrid.Columns>-->
+                        
                     </DataGrid>
                     <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,1,0" />
                     <DataGrid x:Name="ListGrid1" Grid.Column="0" Visibility="Collapsed" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid1_SelectionChanged" Margin="0,27,0,0">
