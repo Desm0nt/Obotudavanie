@@ -183,9 +183,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="GetWebDataWindowOracle.xaml.cs">
+      <DependentUpon>GetWebDataWindowOracle.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Themes\Converters\LeftMarginMultiplierConverter.cs" />
     <Compile Include="Themes\Extensions\ColorExtension.cs" />
     <Compile Include="Themes\Extensions\TreeViewItemExtension.cs" />
+    <Page Include="GetWebDataWindowOracle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="GetWebDataWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -609,6 +609,17 @@ namespace Obotudavanie
             probeTask.Wait();
             return probeTask.Result;
         }
+
+        private void btn_GetDataWindowSAP_Click(object sender, RoutedEventArgs e)
+        {
+            GetWebDataWindowOracle subWindow = new GetWebDataWindowOracle()
+            {
+                Owner = System.Windows.Application.Current.MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            };
+            subWindow.Show();
+            subWindow.Closed += subWindowClosed;
+        }
     }
 }
 

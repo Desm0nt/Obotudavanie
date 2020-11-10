@@ -1,0 +1,126 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Obotudavanie"
+        xmlns:dxb="http://schemas.devexpress.com/winfx/2008/xaml/bars" xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="Obotudavanie.GetWebDataWindowOracle"
+        mc:Ignorable="d"
+        Title="GetWebDataWindowOracle" FontFamily="Calibri" FontWeight="Bold" FontSize="18" Height="700" Width="1300" MinWidth="1200" MinHeight="700">
+    <Window.Resources>
+        <Style x:Key="DataGridCellStyle1" TargetType="{x:Type DataGridCell}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="Light"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridCell}">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                            <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="LightGray"/>
+                    <Setter Property="Foreground" Value="Black"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource {x:Static DataGrid.FocusBorderBrushKey}}"/>
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsSelected" Value="true"/>
+                        <Condition Property="Selector.IsSelectionActive" Value="false"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}"/>
+                </MultiTrigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ColumnHeaderGripperStyle" TargetType="{x:Type Thumb}">
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="SizeWE"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DataGridColumnHeaderStyle1" TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="7*"/>
+                                <ColumnDefinition Width="80*"/>
+                                <ColumnDefinition Width="950*"/>
+                            </Grid.ColumnDefinitions>
+                            <Themes:DataGridHeaderBorder BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" IsClickable="{TemplateBinding CanUserSort}" IsPressed="{TemplateBinding IsPressed}" IsHovered="{TemplateBinding IsMouseOver}" Padding="{TemplateBinding Padding}" SortDirection="{TemplateBinding SortDirection}" SeparatorBrush="{TemplateBinding SeparatorBrush}" SeparatorVisibility="{TemplateBinding SeparatorVisibility}" Grid.ColumnSpan="3">
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Themes:DataGridHeaderBorder>
+                            <Thumb x:Name="PART_LeftHeaderGripper" HorizontalAlignment="Left" Style="{StaticResource ColumnHeaderGripperStyle}" Grid.ColumnSpan="2"/>
+                            <Thumb x:Name="PART_RightHeaderGripper" HorizontalAlignment="Right" Style="{StaticResource ColumnHeaderGripperStyle}" Grid.Column="2"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#FFF1F1F1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="75*"/>
+            <ColumnDefinition Width="248*"/>
+        </Grid.ColumnDefinitions>
+        <Menu VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <!--<ComboBox x:Name="cmbox_dataSelection" Visibility="Hidden" SelectionChanged="cmbox_dataSelection_SelectionChanged" FontSize="15" FontWeight="Light"  HorizontalAlignment="Left" Margin="10,191,0,0"  VerticalAlignment="Top" Width="233" Height="32"/>-->
+        <Label Name="lbl_dataSelection" Content="Выберите ЭД" Visibility="Hidden" HorizontalAlignment="Left" Margin="10,165,0,0" VerticalAlignment="Top" Width="212"/>
+        <Grid Background="#FFF1F1F1" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" MinWidth="200" MaxWidth="500"/>
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <DataGrid x:Name="dtGrid_dataOutput" Grid.Column="2" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" Margin="0,35,0,0" >
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Наименование" Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="Тип" Binding="{Binding Type}"/>
+                    <DataGridTextColumn Header="Значение" Binding="{Binding Value}"/>
+                    <DataGridTextColumn Visibility="Collapsed" Header="Умолчание" Binding="{Binding DefValue}"/>
+                    <DataGridTextColumn Header="Ед изм" Binding="{Binding EdIzm}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+            <DataGrid x:Name="ListGrid" Grid.Column="0" AutoGenerateColumns="false"   ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid_SelectionChanged" Margin="0,35,0,0">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Инв.Номер" Binding="{Binding Key}" MaxWidth="120"/>
+                    <DataGridTextColumn Header="Наименование" Binding="{Binding Value}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+        <Button x:Name="LoadButton" Content="Загрузить данные" HorizontalAlignment="Left" VerticalAlignment="Top" Width="169" Margin="6,3,0,0" Click="btn_LoadButton_Click" Height="26"/>
+        <ComboBox x:Name="typeNameListCombobox" ItemsSource="{Binding typeNameList}" SelectedValuePath="Key" DisplayMemberPath="Value" SelectedIndex="0" SelectionChanged="typeNameListCombobox_SelectionChanged" HorizontalAlignment="Left" Margin="230,3,0,0" VerticalAlignment="Top" Width="240" Height="26" Grid.Column="1"/>
+        <Button x:Name="TypeChangeButton" Content="Изменить тип" HorizontalAlignment="Left" Margin="475,3,0,0" VerticalAlignment="Top" Width="129" Click="btn_TypeChangeButton_Click" Grid.Column="1" Height="26"/>
+        <Button x:Name="SaveAllButton" Content="Сохранить всё" HorizontalAlignment="Left" Margin="609,3,0,0" VerticalAlignment="Top" Width="136" Click="btn_SaveAllButton_Click" Grid.Column="1" Height="26"/>
+        <Label Content="Текущий тип: " HorizontalAlignment="Left" Margin="180,0,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="TypeLable" Content=" " HorizontalAlignment="Left" Margin="292,0,0,0" VerticalAlignment="Top" Width="233" Grid.ColumnSpan="2"/>
+        <!--<Button x:Name="btn_openFile" Click="btn_openFile_Click" Content="Открыть файл" HorizontalAlignment="Left" Height="29" Margin="27,39,0,0" VerticalAlignment="Top" Width="195" />-->
+
+    </Grid>
+</Window> 
