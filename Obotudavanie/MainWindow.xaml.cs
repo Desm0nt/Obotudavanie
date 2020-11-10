@@ -43,6 +43,20 @@ namespace Obotudavanie
 
             this.DataContext = this;
 
+            try
+            {
+                var isAlive = ProbeForMongoDbConnection("mongodb://localhost:27017", "admin");
+                if (isAlive == false)
+                    throw new Exception();
+            }   
+            catch (Exception ex)
+            {
+                MessageBox.Show("Не найдена база");
+                Environment.Exit(0);
+                App.Current.MainWindow.Close();
+                Application.Current.Shutdown();
+            }
+
             dtGrid_dataOutput.CellEditEnding += dtGrid_dataOutput_CellEditEnding;
             string connectionString = "mongodb://localhost";
             var client = new MongoClient(connectionString);
@@ -567,6 +581,33 @@ namespace Obotudavanie
             {
                 dtGrid_dataOutput1.Columns[colindex].Visibility = Visibility.Visible;
             }
+        }
+
+        private static bool ProbeForMongoDbConnection(string connectionString, string dbName)
+        {
+            var probeTask =
+                    Task.Run(() =>
+                    {
+                        var isAlive = false;
+                        var client = new MongoDB.Driver.MongoClient(connectionString);
+
+                        for (var k = 0; k < 6; k++)
+                        {
+                            client.GetDatabase(dbName);
+                            var server = client.Cluster.Description.Servers.FirstOrDefault();
+                            isAlive = (server != null &&
+                                   server.HeartbeatException == null &&
+                                   server.State == MongoDB.Driver.Core.Servers.ServerState.Connected);
+                            if (isAlive)
+                            {
+                                break;
+                            }
+                            System.Threading.Thread.Sleep(300);
+                        }
+                        return isAlive;
+                    });
+            probeTask.Wait();
+            return probeTask.Result;
         }
     }
 }
