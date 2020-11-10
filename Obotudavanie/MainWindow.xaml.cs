@@ -32,7 +32,7 @@ namespace Obotudavanie
         List<Oborudovanie> LoadedOborud2 = new List<Oborudovanie>();
         List<Oborudovanie> oborudovanies = new List<Oborudovanie>();
         List<Oborudovanie> oborudovanies_editor = new List<Oborudovanie>();
-        Dictionary<int, string> OborList = new Dictionary<int, string>();
+        Dictionary<long, string> OborList = new Dictionary<long, string>();
         public ObservableCollection<BoolStringClass> TheList { get; set; }
 
         public MainWindow()
@@ -210,6 +210,10 @@ namespace Obotudavanie
                     {
                         listofItems.Add((propvalue as Classes.Attribute<DateTime>).Value.ToString());
                     }
+                    else if (propvalue.GetType().GenericTypeArguments[0] == typeof(long))
+                    {
+                        listofItems.Add((propvalue as Classes.Attribute<long>).Value.ToString());
+                    }
                 }
                 listoflists.Add(listofItems);
 
@@ -226,6 +230,7 @@ namespace Obotudavanie
 
                 DataGridTextColumn textColumn = new DataGridTextColumn();
                 textColumn.Header = "";
+                var aa = propvalue.GetType().GenericTypeArguments[0];
                 if (propvalue.GetType().GenericTypeArguments[0] == typeof(double))
                 {
                     textColumn.Header = (propvalue as Classes.Attribute<double>).Name;
@@ -241,6 +246,10 @@ namespace Obotudavanie
                 else if (propvalue.GetType().GenericTypeArguments[0] == typeof(DateTime))
                 {
                     textColumn.Header = (propvalue as Classes.Attribute<DateTime>).Name;
+                }
+                else if (propvalue.GetType().GenericTypeArguments[0] == typeof(long))
+                {
+                    textColumn.Header = (propvalue as Classes.Attribute<long>).Name;
                 }
                 textColumn.Binding = new Binding(string.Format("[{0}]", i));
                 dtGrid_dataOutput1.Columns.Add(textColumn);
@@ -454,7 +463,7 @@ namespace Obotudavanie
         }
         private void UpdateOborList2()
         {
-            OborList = new Dictionary<int, string>();
+            OborList = new Dictionary<long, string>();
             for (int i = 0; i < LoadedOborud2.Count; i++)
             {
                 OborList.Add(LoadedOborud2[i].InvNum_OsnovnSredstva.Value, LoadedOborud2[i].Name_OsnovnSredstva.Value.ToString());
@@ -463,7 +472,7 @@ namespace Obotudavanie
         }
         private void UpdateOborList()
         {
-            OborList = new Dictionary<int, string>();
+            OborList = new Dictionary<long, string>();
             for (int i = 0; i < LoadedOborud.Count; i++)
             {
                 OborList.Add(LoadedOborud[i].InvNum_OsnovnSredstva.Value, LoadedOborud[i].Name_OsnovnSredstva.Value.ToString());

@@ -31,7 +31,7 @@ namespace Obotudavanie
         Dictionary<int, string> namesList = new Dictionary<int, string>();
         public KeyValuePair<Type, string> keyItem { get; set; }
         public Dictionary<Type, string> TypeNameList { get; set; }
-        Dictionary<int, string> OborList = new Dictionary<int, string>();
+        Dictionary<long, string> OborList = new Dictionary<long, string>();
 
         public GetWebDataWindow()
         {
@@ -114,7 +114,7 @@ namespace Obotudavanie
 
         private void UpdateOborList()
         {
-            OborList = new Dictionary<int, string>();
+            OborList = new Dictionary<long, string>();
             for (int i = 0; i < LoadedOborud.Count; i++)
             {
                 OborList.Add(LoadedOborud[i].InvNum_OsnovnSredstva.Value, LoadedOborud[i].Name_OsnovnSredstva.Value.ToString());
