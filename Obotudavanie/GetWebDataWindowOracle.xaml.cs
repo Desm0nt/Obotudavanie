@@ -18,6 +18,7 @@ using MongoDB.Driver;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Oracle.ManagedDataAccess.Client;
+using System.Configuration;
 
 namespace Obotudavanie
 {
@@ -74,7 +75,9 @@ namespace Obotudavanie
         {
             try
             {
-                string conString = "User Id=AVT_ENERG; password=19923005; Data Source=192.168.48.128:1521/GML1; Pooling=false;";
+                //string conString = "User Id=AVT_ENERG; password=19923005; Data Source=192.168.48.128:1521/GML1; Pooling=false;";
+                
+                string conString = ConfigurationManager.AppSettings["cnStr"];
 
                 //How to connect to an Oracle Database with a Database alias.
                 //Uncomment below and comment above.
