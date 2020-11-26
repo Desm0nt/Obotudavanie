@@ -1,0 +1,44 @@
+﻿Адрес справочной системы Энерго-Инфо:
+http://bl-ora-wls12.it.beloil.by:8002/help/
+
+домен в веблоджик 12с
+wls: http://bl-ora-wls12.it.beloil.by:8001/console
+port: 8002
+user: avt_admin
+pass: admin2avt
+
+SQL Server: 
+host: aup-wcs-sql.belarusneft.beloil.by
+user: equipment
+pwd: BumBo&me
+Пароль для production mode: <password-encrypted>{AES}X0fVSE8XTbOKvBSXpXmzsJcGkmxpq9ye10HfH8aglrs=</password-encrypted>
+
+Подключение к базе данных:
+host: aup-ora-rac1.it.beloil.by
+sid: oraweb
+u: rcd
+p: rcd2test
+p2: rcd4rcd
+
+FTP:
+ftp://ftp.beloil.by
+user: SupportAvt
+pass: Privet4Avt
+dom: BELARUSNEFT
+
+Локальная папка в сети терминала: \\aup-iis.belarusneft.beloil.by\ftpServer\
+
+Доступ к БД "Учет основных средств"
+u: AVT_ENERG
+p: pass4energ
+db: GML1
+Host: sdb-gml1.it.beloil.by
+Port: 1521
+
+Доступ к Учету основных средств
+UniDAC Connection String: Provider Name=Oracle;Login Prompt=False;Direct=True;Server=sdb-gml1.it.beloil.by;User ID=AVT_ENERG;Password=pass4energ;Schema=AVT_ENERG;Use Unicode=True;SID=GML1
+
+ADO Connection String: Provider=MSDAORA.1;Password=pass4energ;User ID=AVT_ENERG;Data Source=GML1;Persist Security Info=True
+
+Приложения Такочакова:
+http://aup-wcs-iis/ter

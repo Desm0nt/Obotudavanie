@@ -17,13 +17,15 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Oracle.ManagedDataAccess.Client;
+using System.Configuration;
 
 namespace Obotudavanie
 {
     /// <summary>
-    /// Логика взаимодействия для GetWebDataWindow.xaml
+    /// Логика взаимодействия для GetWebDataWindowOracle.xaml
     /// </summary>
-    public partial class GetWebDataWindow : System.Windows.Window
+    public partial class GetWebDataWindowOracle : System.Windows.Window
     {
         int indexObor = 0;
         List<Oborudovanie> LoadedOborud = new List<Oborudovanie>();
@@ -33,7 +35,7 @@ namespace Obotudavanie
         public Dictionary<Type, string> TypeNameList { get; set; }
         Dictionary<long, string> OborList = new Dictionary<long, string>();
 
-        public GetWebDataWindow()
+        public GetWebDataWindowOracle()
         {
             InitializeComponent();
 
@@ -71,44 +73,88 @@ namespace Obotudavanie
 
         private void btn_LoadButton_Click(object sender, RoutedEventArgs e)
         {
-            string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
-            var req = (HttpWebRequest)WebRequest.Create(url);
-            req.Credentials = new NetworkCredential("august", "august08");
-            var response = req.GetResponse();
-            using (var reader = new System.IO.StreamReader(response.GetResponseStream()))
+            try
             {
-                string responseBody = reader.ReadToEnd();
-                var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
-                foreach (var jobj in jarray)
-                {
+                //string conString = "User Id=AVT_ENERG; password=19923005; Data Source=192.168.48.128:1521/GML1; Pooling=false;";
+                
+                string conString = ConfigurationManager.AppSettings["cnStr"];
 
+                //How to connect to an Oracle Database with a Database alias.
+                //Uncomment below and comment above.
+                //"Data Source=pdborcl;Pooling=false;";
+
+                OracleConnection con = new OracleConnection();
+                con.ConnectionString = conString;
+                con.Open();
+
+                //Create a command within the context of the connection
+                //Use the command to display employee names and salary from the Employees table
+                OracleCommand cmd = con.CreateCommand();
+                //cmd.CommandText = "select first_name from employees where department_id = 60";
+                cmd.CommandText = "SELECT ANLKL, INVNR, TXTF1, LGOBE, AKTIV FROM NSI_SAP.S_OS INNER JOIN NSI_SAP.S_OS_MOVE ON NSI_SAP.S_OS.ANLN1 =NSI_SAP.S_OS_MOVE.ANLN1 INNER JOIN NSI_SAP.S_SKLAD ON (NSI_SAP.S_OS_MOVE.LGORT =NSI_SAP.S_SKLAD.LGORT AND NSI_SAP.S_OS_MOVE.WERKS =NSI_SAP.S_SKLAD.WERKS) WHERE NSI_SAP.S_SKLAD.LGOBE LIKE '%Бондаренко С. В.%' OR NSI_SAP.S_SKLAD.LGOBE LIKE '%Бондаренко С.В.%' OR NSI_SAP.S_SKLAD.LGOBE LIKE '%Гришман М. А.%' OR NSI_SAP.S_SKLAD.LGOBE LIKE '%Гришман М.А.%' OR NSI_SAP.S_SKLAD.LGOBE LIKE '%Ермолов А. А.%' OR NSI_SAP.S_SKLAD.LGOBE LIKE '%Ермолов А.А.%' OR NSI_SAP.S_SKLAD.LGOBE LIKE '%Ковальчук И. И.%' OR NSI_SAP.S_SKLAD.LGOBE LIKE '%Ковальчук И.И.%' OR NSI_SAP.S_SKLAD.LGOBE LIKE '%Малюк А. Н.%' OR NSI_SAP.S_SKLAD.LGOBE LIKE '%Малюк А.Н.%' OR NSI_SAP.S_SKLAD.LGOBE LIKE '%Тукач А. М.%' OR NSI_SAP.S_SKLAD.LGOBE LIKE '%Тукач А.М.%' ORDER BY NSI_SAP.S_SKLAD.LGOBE";
+
+                //Execute the command and use datareader to display the data
+                OracleDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    Console.WriteLine("ANLKL: " + reader.GetString(0) + " | INVNR: " + reader.GetString(1) + " | TXTF1: " + reader.GetString(2));
                     Oborudovanie obor = new Oborudovanie();
-                    bool containsItem = oborudovanies.Any(item => item.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
-                    if (containsItem)
-                    {
-                        var item = oborudovanies.Single(a => a.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
-                        Type type = item.GetType();
-                        obor = (Oborudovanie)Activator.CreateInstance(type);
-                    }
-                    obor.InvNum_OsnovnSredstva.Value = int.Parse(jobj["ИнвентарныйНомер"].ToString());
-                    obor.Name_OsnovnSredstva.Value = jobj["Наименование"].ToString();
-                    obor.ShifrByCalssificator_OsnovnSredstva.Value = int.Parse(jobj["Шифр"].ToString());
-                    obor.RUP_PartName.Value = jobj["ПодразделениеРУП"].ToString();
-                    obor.ORG_PartName.Value = jobj["Подразделение"].ToString();
-                    obor.Year_OsnovnSredstva.Value = int.Parse(jobj["ГодВыпуска"].ToString());
-                    obor.Vvod_v_Expl_Date.Value = DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd", CultureInfo.InvariantCulture);
-                    obor.MatOtv_Person.Value = jobj["МОЛ"].ToString();
-                    obor.Dislocation_OsnovnSredstva.Value = jobj["Местонахождение"].ToString();
+                    obor.InvNum_OsnovnSredstva.Value = long.Parse(reader.GetString(1).ToString());
+                    obor.Name_OsnovnSredstva.Value = reader.GetString(2).ToString();
+                    // var a = reader.GetString(0).ToString();
+                    //obor.ShifrByCalssificator_OsnovnSredstva.Value = int.Parse(reader.GetString(0).ToString());
+                    //obor.RUP_PartName.Value = jobj["ПодразделениеРУП"].ToString();
+                    //obor.ORG_PartName.Value = jobj["Подразделение"].ToString();
+                    //obor.Year_OsnovnSredstva.Value = int.Parse(jobj["ГодВыпуска"].ToString());
+                    obor.Vvod_v_Expl_Date.Value = DateTime.ParseExact(reader.GetString(4).ToString(), "d.M.yy", CultureInfo.InvariantCulture);
+                    obor.MatOtv_Person.Value = reader.GetString(3).ToString();
+                    //obor.Dislocation_OsnovnSredstva.Value = jobj["Местонахождение"].ToString();
                     LoadedOborud.Add(obor);
                 }
+                Console.ReadLine();
+                //string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
+                //var req = (HttpWebRequest)WebRequest.Create(url);
+                //req.Credentials = new NetworkCredential("august", "august08");
+                //var response = req.GetResponse();
+                //using (var reader = new System.IO.StreamReader(response.GetResponseStream()))
+                //{
+                //    string responseBody = reader.ReadToEnd();
+                //    var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
+                //    foreach (var jobj in jarray)
+                //    {
+
+                //        Oborudovanie obor = new Oborudovanie();
+                //        bool containsItem = oborudovanies.Any(item => item.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
+                //        if (containsItem)
+                //        {
+                //            var item = oborudovanies.Single(a => a.ShifrByCalssificator_OsnovnSredstva.Value == int.Parse(jobj["Шифр"].ToString()));
+                //            Type type = item.GetType();
+                //            obor = (Oborudovanie)Activator.CreateInstance(type);
+                //        }
+                //        obor.InvNum_OsnovnSredstva.Value = int.Parse(jobj["ИнвентарныйНомер"].ToString());
+                //        obor.Name_OsnovnSredstva.Value = jobj["Наименование"].ToString();
+                //        obor.ShifrByCalssificator_OsnovnSredstva.Value = int.Parse(jobj["Шифр"].ToString());
+                //        obor.RUP_PartName.Value = jobj["ПодразделениеРУП"].ToString();
+                //        obor.ORG_PartName.Value = jobj["Подразделение"].ToString();
+                //        obor.Year_OsnovnSredstva.Value = int.Parse(jobj["ГодВыпуска"].ToString());
+                //        obor.Vvod_v_Expl_Date.Value = DateTime.ParseExact(jobj["ДатаВводаВЭксплуатацию"].ToString().Replace("000000", ""), "yyyyMMdd", CultureInfo.InvariantCulture);
+                //        obor.MatOtv_Person.Value = jobj["МОЛ"].ToString();
+                //        obor.Dislocation_OsnovnSredstva.Value = jobj["Местонахождение"].ToString();
+                //        LoadedOborud.Add(obor);
+                //    }
+                //}
+                string connectionString = "mongodb://localhost:27017";
+                MongoClient client = new MongoClient(connectionString);
+                IMongoDatabase database = client.GetDatabase("BN");
+                var collection = database.GetCollection<Oborudovanie>("BNCol");
+                var cust1 = new BsonDocument();
+                collection.InsertMany(LoadedOborud);
+                string json = JsonConvert.SerializeObject(LoadedOborud, Formatting.Indented);
             }
-            //string connectionString = "mongodb://localhost:27017";
-            //MongoClient client = new MongoClient(connectionString);
-            //IMongoDatabase database = client.GetDatabase("BN");
-            //var collection = database.GetCollection<Oborudovanie>("BNCol");
-            //var cust1 = new BsonDocument();
-            //collection.InsertMany(LoadedOborud);
-            //string json = JsonConvert.SerializeObject(LoadedOborud, Formatting.Indented);
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
             UpdateOborList();
         }
 
@@ -117,7 +163,11 @@ namespace Obotudavanie
             OborList = new Dictionary<long, string>();
             for (int i = 0; i < LoadedOborud.Count; i++)
             {
-                OborList.Add(LoadedOborud[i].InvNum_OsnovnSredstva.Value, LoadedOborud[i].Name_OsnovnSredstva.Value.ToString());
+                try
+                {
+                    OborList.Add(LoadedOborud[i].InvNum_OsnovnSredstva.Value, LoadedOborud[i].Name_OsnovnSredstva.Value.ToString());
+                }
+                catch (Exception ex) { }
             }
             ListGrid.ItemsSource = OborList;
         }
@@ -129,7 +179,7 @@ namespace Obotudavanie
             {
                 DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
                 DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
-                int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
+                long CellValue = long.Parse(((TextBlock)RowColumn.Content).Text);
                 int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
                 indexObor = selectedIndex;
 

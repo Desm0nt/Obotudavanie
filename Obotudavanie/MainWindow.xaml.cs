@@ -17,6 +17,8 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Collections.ObjectModel;
 
 namespace Obotudavanie
 {
@@ -30,21 +32,32 @@ namespace Obotudavanie
         List<Oborudovanie> LoadedOborud2 = new List<Oborudovanie>();
         List<Oborudovanie> oborudovanies = new List<Oborudovanie>();
         List<Oborudovanie> oborudovanies_editor = new List<Oborudovanie>();
-        Dictionary<int, string> OborList = new Dictionary<int, string>();
+        Dictionary<long, string> OborList = new Dictionary<long, string>();
+        public ObservableCollection<BoolStringClass> TheList { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
 
+            TheList = new ObservableCollection<BoolStringClass>();
+
+            this.DataContext = this;
+
+            try
+            {
+                var isAlive = ProbeForMongoDbConnection("mongodb://localhost:27017", "admin");
+                if (isAlive == false)
+                    throw new Exception();
+            }   
+            catch (Exception ex)
+            {
+                MessageBox.Show("Не найдена база");
+                Environment.Exit(0);
+                App.Current.MainWindow.Close();
+                Application.Current.Shutdown();
+            }
+
             dtGrid_dataOutput.CellEditEnding += dtGrid_dataOutput_CellEditEnding;
-            //if (File.Exists("BD.json"))
-            //{
-            //    JsonSerializerSettings settings = new JsonSerializerSettings
-            //    {
-            //        TypeNameHandling = TypeNameHandling.Auto
-            //    };
-            //    LoadedOborud = JsonConvert.DeserializeObject<List<Oborudovanie>>(File.ReadAllText("BD.json"), settings);
-            //}
             string connectionString = "mongodb://localhost";
             var client = new MongoClient(connectionString);
             var database = client.GetDatabase("BN");
@@ -54,11 +67,11 @@ namespace Obotudavanie
             UpdateOborList();
 
             oborudovanies.AddRange(new List<Oborudovanie>()
-            { 
+            {
                 new KPT(),
-                new ElectroEngine(), 
-                new Kotel(), 
-                new Nasos(), 
+                new ElectroEngine(),
+                new Kotel(),
+                new Nasos(),
                 new HeatExchanger(),
                 new PowerTransformator(),
                 new SNK_ControlStation()
@@ -78,9 +91,9 @@ namespace Obotudavanie
 
             Dictionary<int, string> namesList = new Dictionary<int, string>();
             Dictionary<int, string> namesList2 = new Dictionary<int, string>();
-            for (int i = 0; i<oborudovanies.Count; i++)
+            for (int i = 0; i < oborudovanies.Count; i++)
             {
-                namesList.Add((i+1), oborudovanies[i].Name_OsnovnSredstva.Value);
+                namesList.Add((i + 1), oborudovanies[i].Name_OsnovnSredstva.Value);
             }
 
             for (int i = 0; i < oborudovanies_editor.Count; i++)
@@ -97,17 +110,180 @@ namespace Obotudavanie
 
             ListGrid0.ItemsSource = namesList;
             ListGrid01.ItemsSource = namesList2;
-
         }
 
-        private void BackButton_Click(object sender, RoutedEventArgs e)
+        #region выбор
+        private void ListGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ListGrid1.Visibility = Visibility.Collapsed;
-            ListGrid01.Visibility = Visibility.Visible;
-            BackButton.IsEnabled = false;
+            DataGrid dataGrid = sender as DataGrid;
+            if (dataGrid.SelectedIndex >= 0)
+            {
+                DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
 
+                DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
+                int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
+                int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
+                var a22 = LoadedOborud[selectedIndex];
+
+                Oborudovanie eEngine = LoadedOborud[selectedIndex];
+                var listOfFields1 = eEngine.GetType().GetProperties().ToList();
+                IList<IAttribute> attList = new List<IAttribute>();
+                foreach (var a in listOfFields1)
+                {
+                    var propvalue = a.GetValue(eEngine, null) as IAttribute;
+                    attList.Add(propvalue);
+                }
+                dtGrid_dataOutput.ItemsSource = attList;
+            }
         }
+        private void ListGrid0_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataGrid dataGrid = sender as DataGrid;
+            DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
 
+            DataGridCell RowColumn = dataGrid.Columns[1].GetCellContent(row).Parent as DataGridCell;
+            var CellValue = ((TextBlock)RowColumn.Content).Text;
+
+            int selectedIndex = oborudovanies_editor.FindIndex(a => a.Name_OsnovnSredstva.Value == CellValue);
+
+            var oborud = oborudovanies_editor[selectedIndex];
+            Console.WriteLine(oborud.GetType().ToString());
+            var listOfFields1 = oborud.GetType().GetProperties().ToList();
+            IList<IAttribute> attList = new List<IAttribute>();
+            foreach (var a in listOfFields1)
+            {
+                var propvalue = a.GetValue(oborud, null) as IAttribute;
+                attList.Add(propvalue);
+            }
+            ClassGrid.ItemsSource = attList;
+        }
+        private void ListGrid01_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //TheList = new ObservableCollection<BoolStringClass>();
+            DataGrid dataGrid = sender as DataGrid;
+            dtGrid_dataOutput1.Columns.Clear();
+            DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
+
+            DataGridCell RowColumn = dataGrid.Columns[1].GetCellContent(row).Parent as DataGridCell;
+            var CellValue = ((TextBlock)RowColumn.Content).Text;
+
+            int selectedIndex = oborudovanies_editor.FindIndex(a => a.Name_OsnovnSredstva.Value == CellValue);
+
+            var oborud = oborudovanies_editor[selectedIndex];
+
+            KeyValuePair<int, string> item = (KeyValuePair<int, string>)row.Item;
+            Console.WriteLine(oborud.GetType().Name.ToString());
+            string connectionString = "mongodb://localhost";
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var builder = Builders<Oborudovanie>.Filter;
+            var filter = builder.Eq("_t", oborud.GetType().Name.ToString());
+            if (item.Value == "Оборудование")
+            {
+                filter = builder.Not(builder.Exists("_t"));
+            }
+            LoadedOborud2 = collection.Find(filter).ToList();
+            ObservableCollection<ObservableCollection<string>> listoflists = new ObservableCollection<ObservableCollection<string>>();
+            ObservableCollection<string> listofItems = new ObservableCollection<string>();
+            foreach (var obor in LoadedOborud2)
+            {
+                listofItems = new ObservableCollection<string>();
+                var listOfFields2 = obor.GetType().GetProperties().ToList();
+                IList<IAttribute> attList2 = new List<IAttribute>();
+                foreach (var bb in listOfFields2)
+                {
+                    var propvalue = bb.GetValue(obor, null) as IAttribute;
+                    if (propvalue.GetType().GenericTypeArguments[0] == typeof(double))
+                    {
+                        listofItems.Add((propvalue as Classes.Attribute<double>).Value.ToString());
+                    }
+                    else if (propvalue.GetType().GenericTypeArguments[0] == typeof(string))
+                    {
+                        listofItems.Add((propvalue as Classes.Attribute<string>).Value.ToString());
+                    }
+                    else if (propvalue.GetType().GenericTypeArguments[0] == typeof(int))
+                    {
+                        listofItems.Add((propvalue as Classes.Attribute<int>).Value.ToString());
+                    }
+                    else if (propvalue.GetType().GenericTypeArguments[0] == typeof(DateTime))
+                    {
+                        listofItems.Add((propvalue as Classes.Attribute<DateTime>).Value.ToString());
+                    }
+                    else if (propvalue.GetType().GenericTypeArguments[0] == typeof(long))
+                    {
+                        listofItems.Add((propvalue as Classes.Attribute<long>).Value.ToString());
+                    }
+                }
+                listoflists.Add(listofItems);
+
+            }
+            var listOfFields1 = oborud.GetType().GetProperties().ToList();
+
+            TheList.Clear();
+            IList<IAttribute> attList = new List<IAttribute>();
+            int i = 0;
+            foreach (var a in listOfFields1)
+            {
+                var propvalue = a.GetValue(oborud, null) as IAttribute;
+                attList.Add(propvalue);
+
+                DataGridTextColumn textColumn = new DataGridTextColumn();
+                textColumn.Header = "";
+                var aa = propvalue.GetType().GenericTypeArguments[0];
+                if (propvalue.GetType().GenericTypeArguments[0] == typeof(double))
+                {
+                    textColumn.Header = (propvalue as Classes.Attribute<double>).Name;
+                }
+                else if (propvalue.GetType().GenericTypeArguments[0] == typeof(string))
+                {
+                    textColumn.Header = (propvalue as Classes.Attribute<string>).Name;
+                }
+                else if (propvalue.GetType().GenericTypeArguments[0] == typeof(int))
+                {
+                    textColumn.Header = (propvalue as Classes.Attribute<int>).Name;
+                }
+                else if (propvalue.GetType().GenericTypeArguments[0] == typeof(DateTime))
+                {
+                    textColumn.Header = (propvalue as Classes.Attribute<DateTime>).Name;
+                }
+                else if (propvalue.GetType().GenericTypeArguments[0] == typeof(long))
+                {
+                    textColumn.Header = (propvalue as Classes.Attribute<long>).Name;
+                }
+                textColumn.Binding = new Binding(string.Format("[{0}]", i));
+                dtGrid_dataOutput1.Columns.Add(textColumn);
+                TheList.Add(new BoolStringClass { IsSelected = true, TheText = textColumn.Header.ToString() });
+                i++;
+            }
+            dtGrid_dataOutput1.ItemsSource = listoflists;
+            int colindex = dtGrid_dataOutput1.Columns.IndexOf(dtGrid_dataOutput1.Columns.FirstOrDefault(c => c.Header.ToString() == "Наименование основного средства "));
+            dtGrid_dataOutput1.Columns[colindex].DisplayIndex = 0;
+            // ClassGrid.ItemsSource = attList;
+        }
+        private void ListGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataGrid dataGrid = sender as DataGrid;
+            if (dataGrid.SelectedIndex >= 0)
+            {
+                DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
+                DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
+                int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
+                int selectedIndex = LoadedOborud2.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
+
+                var a22 = LoadedOborud2[selectedIndex];
+
+                Oborudovanie eEngine = LoadedOborud2[selectedIndex];
+                var listOfFields1 = eEngine.GetType().GetProperties().ToList();
+                IList<IAttribute> attList = new List<IAttribute>();
+                foreach (var a in listOfFields1)
+                {
+                    var propvalue = a.GetValue(eEngine, null) as IAttribute;
+                    attList.Add(propvalue);
+                }
+                dtGrid_dataOutput1.ItemsSource = attList;
+            }
+        }
         private void ListGrid01_Row_DoubleClick(object sender, MouseButtonEventArgs e)
         {
             ListGrid01.Visibility = Visibility.Collapsed;
@@ -133,72 +309,9 @@ namespace Obotudavanie
             UpdateOborList2();
             e.Handled = true;
         }
+        #endregion
 
-        private void UpdateOborList2()
-        {
-            OborList = new Dictionary<int, string>();
-            for (int i = 0; i < LoadedOborud2.Count; i++)
-            {
-                OborList.Add(LoadedOborud2[i].InvNum_OsnovnSredstva.Value, LoadedOborud2[i].Name_OsnovnSredstva.Value.ToString());
-            }
-            ListGrid1.ItemsSource = OborList;
-        }
-
-        private void ListGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            DataGrid dataGrid = sender as DataGrid;
-            if (dataGrid.SelectedIndex >= 0)
-            {
-                DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
-                DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
-                int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
-                int selectedIndex = LoadedOborud2.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
-
-                DataSet dataSetData = new DataSet();
-                var a22 = LoadedOborud2[selectedIndex];
-
-                Oborudovanie eEngine = LoadedOborud2[selectedIndex];
-                var listOfFields1 = eEngine.GetType().GetProperties().ToList();
-                IList<IAttribute> attList = new List<IAttribute>();
-                foreach (var a in listOfFields1)
-                {
-                    var propvalue = a.GetValue(eEngine, null) as IAttribute;
-                    attList.Add(propvalue);
-                }
-                dtGrid_dataOutput1.ItemsSource = attList;
-            }
-        }
-
-        private string GetSelectedValue(DataGrid grid)
-        {
-            DataGridCellInfo cellInfo = grid.SelectedCells[0];
-            if (cellInfo == null) return null;
-
-            DataGridBoundColumn column = cellInfo.Column as DataGridBoundColumn;
-            if (column == null) return null;
-
-            FrameworkElement element = new FrameworkElement() { DataContext = cellInfo.Item };
-            BindingOperations.SetBinding(element, TagProperty, column.Binding);
-
-            return element.Tag.ToString();
-        }
-        private void ListGrid0_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            DataGrid dataGrid = sender as DataGrid;
-            DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
-
-            var oborud = oborudovanies_editor[dataGrid.SelectedIndex];
-            Console.WriteLine(oborud.GetType().ToString());
-            var listOfFields1 = oborud.GetType().GetProperties().ToList();
-            IList<IAttribute> attList = new List<IAttribute>();
-            foreach (var a in listOfFields1)
-            {
-                var propvalue = a.GetValue(oborud, null) as IAttribute;
-                attList.Add(propvalue);
-            }
-            ClassGrid.ItemsSource = attList;
-        }
-
+        #region buttons
         private void btn_openFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openfile = new OpenFileDialog();
@@ -224,15 +337,14 @@ namespace Obotudavanie
             }
 
         }
-
         private void btn_GetData_Click(object sender, RoutedEventArgs e)
         {
             string url = "https://dev.beloil.by/cint/kisnpops/hs/ref/osbyperson/1090/";
             var req = (HttpWebRequest)WebRequest.Create(url);
             req.Credentials = new NetworkCredential("august", "august08");
             var response = req.GetResponse();
-            using (var reader = new System.IO.StreamReader(response.GetResponseStream())) 
-            { 
+            using (var reader = new System.IO.StreamReader(response.GetResponseStream()))
+            {
                 string responseBody = reader.ReadToEnd();
                 var jarray = (JArray)JsonConvert.DeserializeObject(responseBody);
                 foreach (var jobj in jarray)
@@ -269,19 +381,6 @@ namespace Obotudavanie
             string json = JsonConvert.SerializeObject(LoadedOborud, Formatting.Indented);
             UpdateOborList();
         }
-
-        private static async Task SaveDocs(List<Oborudovanie> Oborud)
-        {
-            string connectionString = "mongodb://localhost:27017";
-            MongoClient client = new MongoClient(connectionString);
-            IMongoDatabase database = client.GetDatabase("BN");
-            var collection = database.GetCollection<Oborudovanie>("BNCol");
-            var cust1 = new BsonDocument();
-            cust1.Add("Items", new BsonArray(Oborud.Select(i =>
-            i.ToBsonDocument())));
-            await collection.InsertManyAsync(Oborud);
-        }
-
         private void btn_GetData_Click2(object sender, RoutedEventArgs e)
         {
             //List<string> ToTable = new List<string>();
@@ -312,46 +411,22 @@ namespace Obotudavanie
             }
             FindDocs();
         }
-
-        private static async Task FindDocs()
+        private void btn_GetDataWindow_Click(object sender, RoutedEventArgs e)
         {
-            string connectionString = "mongodb://localhost";
-            var client = new MongoClient(connectionString);
-            var database = client.GetDatabase("BN");
-            var collection = database.GetCollection<Oborudovanie>("BNCol");
-            var filter = new BsonDocument();
-            var BNCol = await collection.Find(filter).ToListAsync();
-            foreach (var doc in BNCol)
+            GetWebDataWindow subWindow = new GetWebDataWindow()
             {
-                Console.WriteLine(doc);
-            }
+                Owner = System.Windows.Application.Current.MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            };
+            subWindow.Show();
+            subWindow.Closed += subWindowClosed;
         }
-
-        private void ListGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            DataGrid dataGrid = sender as DataGrid;
-            if (dataGrid.SelectedIndex >= 0)
-            {
-                DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromIndex(dataGrid.SelectedIndex);
-                DataGridCell RowColumn = dataGrid.Columns[0].GetCellContent(row).Parent as DataGridCell;
-                int CellValue = Int32.Parse(((TextBlock)RowColumn.Content).Text);
-                int selectedIndex = LoadedOborud.FindIndex(a => a.InvNum_OsnovnSredstva.Value == CellValue);
-
-                DataSet dataSetData = new DataSet();
-                var a22 = LoadedOborud[selectedIndex];
-
-                Oborudovanie eEngine = LoadedOborud[selectedIndex];
-                var listOfFields1 = eEngine.GetType().GetProperties().ToList();
-                IList<IAttribute> attList = new List<IAttribute>();
-                foreach (var a in listOfFields1)
-                {
-                    var propvalue = a.GetValue(eEngine, null) as IAttribute;
-                    attList.Add(propvalue);
-                }
-                dtGrid_dataOutput.ItemsSource = attList;
-            }
+            ListGrid1.Visibility = Visibility.Collapsed;
+            ListGrid01.Visibility = Visibility.Visible;
+            BackButton.IsEnabled = false;
         }
-
         private void button1_Click(object sender, RoutedEventArgs e)
         {
             //using (ExcelEngine excelEngine = new ExcelEngine())
@@ -378,10 +453,26 @@ namespace Obotudavanie
 
             //}
         }
+        #endregion
 
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+            var accentBrush = TryFindResource("AccentColorBrush") as SolidColorBrush;
+            if (accentBrush != null) accentBrush.Color.CreateAccentColors();
+        }
+        private void UpdateOborList2()
+        {
+            OborList = new Dictionary<long, string>();
+            for (int i = 0; i < LoadedOborud2.Count; i++)
+            {
+                OborList.Add(LoadedOborud2[i].InvNum_OsnovnSredstva.Value, LoadedOborud2[i].Name_OsnovnSredstva.Value.ToString());
+            }
+            ListGrid1.ItemsSource = OborList;
+        }
         private void UpdateOborList()
         {
-            OborList = new Dictionary<int, string>();
+            OborList = new Dictionary<long, string>();
             for (int i = 0; i < LoadedOborud.Count; i++)
             {
                 OborList.Add(LoadedOborud[i].InvNum_OsnovnSredstva.Value, LoadedOborud[i].Name_OsnovnSredstva.Value.ToString());
@@ -394,7 +485,43 @@ namespace Obotudavanie
             };
             File.WriteAllText("BD.json", JsonConvert.SerializeObject(LoadedOborud, settings));
         }
+        private string GetSelectedValue(DataGrid grid)
+        {
+            DataGridCellInfo cellInfo = grid.SelectedCells[0];
+            if (cellInfo == null) return null;
 
+            DataGridBoundColumn column = cellInfo.Column as DataGridBoundColumn;
+            if (column == null) return null;
+
+            FrameworkElement element = new FrameworkElement() { DataContext = cellInfo.Item };
+            BindingOperations.SetBinding(element, TagProperty, column.Binding);
+
+            return element.Tag.ToString();
+        }
+        private static async Task SaveDocs(List<Oborudovanie> Oborud)
+        {
+            string connectionString = "mongodb://localhost:27017";
+            MongoClient client = new MongoClient(connectionString);
+            IMongoDatabase database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var cust1 = new BsonDocument();
+            cust1.Add("Items", new BsonArray(Oborud.Select(i =>
+            i.ToBsonDocument())));
+            await collection.InsertManyAsync(Oborud);
+        }
+        private static async Task FindDocs()
+        {
+            string connectionString = "mongodb://localhost";
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("BN");
+            var collection = database.GetCollection<Oborudovanie>("BNCol");
+            var filter = new BsonDocument();
+            var BNCol = await collection.Find(filter).ToListAsync();
+            foreach (var doc in BNCol)
+            {
+                Console.WriteLine(doc);
+            }
+        }
         void dtGrid_dataOutput_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             //if (e.EditAction == DataGridEditAction.Commit)
@@ -413,20 +540,9 @@ namespace Obotudavanie
             //}
 
         }
-
-        private void btn_GetDataWindow_Click(object sender, RoutedEventArgs e)
-        {
-            GetWebDataWindow subWindow = new GetWebDataWindow()
-            {
-                Owner = System.Windows.Application.Current.MainWindow,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-            };
-            subWindow.Show();
-            subWindow.Closed += subWindowClosed;
-        }
-
         public void subWindowClosed(object sender, System.EventArgs e)
         {
+            this.Activate();
             string connectionString = "mongodb://localhost";
             var client = new MongoClient(connectionString);
             var database = client.GetDatabase("BN");
@@ -434,6 +550,84 @@ namespace Obotudavanie
             var filter = new BsonDocument();
             LoadedOborud = collection.Find(filter).ToList();
             UpdateOborList();
+        }
+        private void btn_PopUp_Click(object sender, RoutedEventArgs e)
+        {
+            if (popup1.IsOpen == true)
+                popup1.IsOpen = false;
+            else if (popup1.IsOpen == false)
+                popup1.IsOpen = true;
+        }
+        public class BoolStringClass
+        {
+            public string TheText { get; set; }
+            public bool IsSelected { get; set; }
+        }
+        private void mainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var tc = sender as TabControl; //The sender is a type of TabControl...
+
+            if (tc != null)
+            {
+                var item = tc.SelectedItem as TabItem;
+                if (item.Header.ToString() == "Редактор2")
+                {
+                    PopUpButton.Visibility = Visibility.Visible;
+                }
+                else
+                    PopUpButton.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void checkBox1_changed(object sender, RoutedEventArgs e)
+        {
+            var cb = sender as CheckBox;
+            int colindex = dtGrid_dataOutput1.Columns.IndexOf(dtGrid_dataOutput1.Columns.FirstOrDefault(c => c.Header.ToString() == cb.Content.ToString()));
+            if (cb.IsChecked == false)
+            {
+                dtGrid_dataOutput1.Columns[colindex].Visibility = Visibility.Collapsed;
+            }
+            else if (cb.IsChecked == true)
+            {
+                dtGrid_dataOutput1.Columns[colindex].Visibility = Visibility.Visible;
+            }
+        }
+
+        private static bool ProbeForMongoDbConnection(string connectionString, string dbName)
+        {
+            var probeTask =
+                    Task.Run(() =>
+                    {
+                        var isAlive = false;
+                        var client = new MongoDB.Driver.MongoClient(connectionString);
+
+                        for (var k = 0; k < 6; k++)
+                        {
+                            client.GetDatabase(dbName);
+                            var server = client.Cluster.Description.Servers.FirstOrDefault();
+                            isAlive = (server != null &&
+                                   server.HeartbeatException == null &&
+                                   server.State == MongoDB.Driver.Core.Servers.ServerState.Connected);
+                            if (isAlive)
+                            {
+                                break;
+                            }
+                            System.Threading.Thread.Sleep(300);
+                        }
+                        return isAlive;
+                    });
+            probeTask.Wait();
+            return probeTask.Result;
+        }
+
+        private void btn_GetDataWindowSAP_Click(object sender, RoutedEventArgs e)
+        {
+            GetWebDataWindowOracle subWindow = new GetWebDataWindowOracle()
+            {
+                Owner = System.Windows.Application.Current.MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            };
+            subWindow.Show();
+            subWindow.Closed += subWindowClosed;
         }
     }
 }

@@ -67,7 +67,7 @@ namespace Obotudavanie.Classes
             var dsOborudovanieInfoList2 = dsOborudovanieInfo.Tables[0].AsEnumerable();
             dsOborudovanieInfoList = dsOborudovanieInfo.Tables[0].AsEnumerable().Select(s => new ElectroEngine
             {
-                InvNum_OsnovnSredstva = new Attribute<int> { DefValue = 0, EdIzm = "", Name = "Инвентарный номер основного средства", Type = "Целое", Value = Convert.ToInt32(s["Инвентарный номер основного средства"]) },
+                InvNum_OsnovnSredstva = new Attribute<long> { DefValue = 0, EdIzm = "", Name = "Инвентарный номер основного средства", Type = "Целое", Value = Convert.ToInt32(s["Инвентарный номер основного средства"]) },
                 Name_OsnovnSredstva = new Attribute<string> { DefValue = "", EdIzm = "", Name = "Наименование основного средства ", Type = "Текст", Value = Convert.ToString(s["Наименование основного средства"] != DBNull.Value ? s["Наименование основного средства"] : "") },
                 ShifrByCalssificator_OsnovnSredstva = new Attribute<int> { DefValue = 0, EdIzm = "", Name = "Шифр основного средства по классификатору", Type = "Целое", Value = Convert.ToInt32(s["Шифр основного средства по классификатору"]) },
                 RUP_PartName = new Attribute<string> { DefValue = "", EdIzm = "", Name = "Наименование подразделения РУП", Type = "Текст", Value = Convert.ToString(s["Наименование подразделения РУП"] != DBNull.Value ? s["Наименование подразделения РУП"] : "") },
@@ -102,7 +102,7 @@ namespace Obotudavanie.Classes
             dsOborudovanieInfoList = dsOborudovanieInfo.Tables[0].AsEnumerable().Select(s => new ElectroEngine
             {
 
-                InvNum_OsnovnSredstva = new Attribute<int> { DefValue = 0, EdIzm = "", Name = "Инвентарный номер основного средства", Type = "Целое", Value = Convert.ToInt32(s["Инвентарный номер основного средства"]) },
+                InvNum_OsnovnSredstva = new Attribute<long> { DefValue = 0, EdIzm = "", Name = "Инвентарный номер основного средства", Type = "Целое", Value = Convert.ToInt32(s["Инвентарный номер основного средства"]) },
                 Name_OsnovnSredstva = new Attribute<string> { DefValue = "", EdIzm = "", Name = "Наименование основного средства ", Type = "Текст", Value = Convert.ToString(s["Наименование основного средства"] != DBNull.Value ? s["Наименование основного средства"] : "") },
                 ShifrByCalssificator_OsnovnSredstva = new Attribute<int> { DefValue = 0, EdIzm = "", Name = "Шифр основного средства по классификатору", Type = "Целое", Value = Convert.ToInt32(s["Шифр основного средства по классификатору"]) },
                 RUP_PartName = new Attribute<string> { DefValue = "", EdIzm = "", Name = "Наименование подразделения РУП", Type = "Текст", Value = Convert.ToString(s["Наименование подразделения РУП"] != DBNull.Value ? s["Наименование подразделения РУП"] : "") },

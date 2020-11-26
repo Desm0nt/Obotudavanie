@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Obotudavanie"
-        xmlns:dxb="http://schemas.devexpress.com/winfx/2008/xaml/bars" xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="Obotudavanie.MainWindow"
+        xmlns:dxb="http://schemas.devexpress.com/winfx/2008/xaml/bars" xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" x:Class="Obotudavanie.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" FontFamily="Calibri" FontWeight="Bold" FontSize="18" Height="700" Width="1300" MinWidth="1300" MinHeight="700">
     <Window.Resources>
@@ -84,28 +84,38 @@
     </Window.Resources>
 
     <Grid Background="#FFF1F1F1">
-        <Menu VerticalAlignment="Top" HorizontalAlignment="Left">
+        <Popup x:Name="popup1" StaysOpen="false" Placement="Mouse" MaxWidth="1280" AllowsTransparency="True">
+            <ListBox ItemsSource="{Binding TheList}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding TheText}" Checked="checkBox1_changed" Unchecked="checkBox1_changed"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Popup>
+        <Menu VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" Grid.ColumnSpan="2">
             <MenuItem Header="Файл" Height="22">
                 <MenuItem Header="Открыть"  x:Name="OpenFile" Click="btn_openFile_Click"/>
                 <MenuItem Header="Выход" />
             </MenuItem>
             <MenuItem Header="Данные" Height="22">
-                <MenuItem Header="Запросить данные"  x:Name="GetData" Click="btn_GetData_Click"/>
-                <MenuItem Header="Запросить данные (окно)"  x:Name="GetDataWindow" Click="btn_GetDataWindow_Click"/>
+                <!--<MenuItem Header="Запросить данные"  x:Name="GetData" Click="btn_GetData_Click"/>-->
+                <MenuItem Header="Запросить данные 1C"  x:Name="GetDataWindow" Click="btn_GetDataWindow_Click"/>
+                <MenuItem Header="Запросить данные SAP"  x:Name="GetDataWindowSAP" Click="btn_GetDataWindowSAP_Click"/>
             </MenuItem>
-            <MenuItem Header="Данные2" Height="22">
+            <!--<MenuItem Header="Данные2" Height="22">
                 <MenuItem Header="Запросить данные"  x:Name="GetData2" Click="btn_GetData_Click2"/>
-            </MenuItem>
+            </MenuItem>-->
         </Menu>
-        <TabControl Margin="0,23,0,0">
-            <TabItem Header="Классификатор">
+        <TabControl x:Name="mainTabControl" Margin="0,23,0,0" Style="{StaticResource AccentTabControl}" SelectionChanged="mainTabControl_SelectionChanged">
+            <TabItem Header="Классификатор" FontFamily="Segoe UI" FontSize="12">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="300" MinWidth="200" MaxWidth="500"/>
-                        <ColumnDefinition Width="5" />
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1" />
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid x:Name="ClassGrid" IsReadOnly="True" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" Grid.Column="2" >
+                    <DataGrid x:Name="ClassGrid" IsReadOnly="True" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}"  RowHeight="22" RowHeaderWidth="20" HeadersVisibility="All" Grid.Column="2" >
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Наименование" Binding="{Binding Name}"/>
                             <DataGridTextColumn Header="Тип" Binding="{Binding Type}"/>
@@ -114,7 +124,7 @@
                             <DataGridTextColumn Visibility="Collapsed" Header="Значение" Binding="{Binding Value}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+                    <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
                     <DataGrid x:Name="ListGrid0" Grid.Column="0" AutoGenerateColumns="false" Margin="0,0,0,-34"  ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid0_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Visibility="Collapsed" Header="Номер" Binding="{Binding Key}"/>
@@ -123,12 +133,12 @@
                     </DataGrid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Редактор" >
+            <TabItem Header="Редактор" FontFamily="Segoe UI" FontSize="12" >
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="300" MinWidth="200" MaxWidth="500"/>
-                        <ColumnDefinition Width="5" />
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1" />
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <DataGrid x:Name="dtGrid_dataOutput" Grid.Column="2" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" >
                         <DataGrid.Columns>
@@ -139,7 +149,7 @@
                             <DataGridTextColumn Header="Ед изм" Binding="{Binding EdIzm}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+                    <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
                     <DataGrid x:Name="ListGrid" Grid.Column="0" AutoGenerateColumns="false"   ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Инв.Номер" Binding="{Binding Key}" MaxWidth="120"/>
@@ -148,51 +158,53 @@
                     </DataGrid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Редактор2" Margin="-2,0" >
+            <TabItem Header="Редактор2" Margin="-2,0" FontFamily="Segoe UI" FontSize="12" >
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="300" MinWidth="200" MaxWidth="500"/>
-                        <ColumnDefinition Width="5" />
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2" />
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid x:Name="dtGrid_dataOutput1" Grid.Column="2" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" >
-                        <DataGrid.Columns>
+                    <DataGrid x:Name="dtGrid_dataOutput1" CanUserAddRows="false" Grid.Column="2" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}"  >
+                        <!--<DataGrid.Columns>
                             <DataGridTextColumn Header="Наименование" Binding="{Binding Name}"/>
                             <DataGridTextColumn Header="Тип" Binding="{Binding Type}"/>
                             <DataGridTextColumn Header="Значение" Binding="{Binding Value}"/>
                             <DataGridTextColumn Visibility="Collapsed" Header="Умолчание" Binding="{Binding DefValue}"/>
                             <DataGridTextColumn Header="Ед изм" Binding="{Binding EdIzm}"/>
-                        </DataGrid.Columns>
+                        </DataGrid.Columns>-->
+
                     </DataGrid>
-                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+                    <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,1,0" />
                     <DataGrid x:Name="ListGrid1" Grid.Column="0" Visibility="Collapsed" AutoGenerateColumns="false" ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid1_SelectionChanged" Margin="0,27,0,0">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Инв.Номер" Binding="{Binding Key}" MaxWidth="120"/>
                             <DataGridTextColumn Header="Наименование" Binding="{Binding Value}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <DataGrid x:Name="ListGrid01" Grid.Column="0"  AutoGenerateColumns="false" Margin="0,27,0,-34"  ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid0_SelectionChanged">
+                    <DataGrid x:Name="ListGrid01" Grid.Column="0"  AutoGenerateColumns="false" Margin="0,27,0,-34"  ColumnWidth="*" CellStyle="{DynamicResource DataGridCellStyle1}" IsReadOnly="True" SelectionChanged="ListGrid01_SelectionChanged">
 
-                        <DataGrid.Resources>
+                        <!--<DataGrid.Resources>
                             <Style TargetType="{x:Type DataGridRow}">
                                 <EventSetter Event="Control.MouseDoubleClick" Handler="ListGrid01_Row_DoubleClick"/>
                             </Style>
-                        </DataGrid.Resources>
+                        </DataGrid.Resources>-->
 
                         <DataGrid.Columns>
                             <DataGridTextColumn Visibility="Collapsed" Header="Номер" Binding="{Binding Key}"/>
                             <DataGridTextColumn Header="Наименование" Binding="{Binding Value}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <Button x:Name="BackButton" IsEnabled="False" Content="Назад" HorizontalAlignment="Left" VerticalAlignment="Top" Width="300" Height="27" Click="BackButton_Click"/>
+                    <Button x:Name="BackButton" IsEnabled="False" Content="Назад" VerticalAlignment="Top" Style="{StaticResource AccentButton}" Height="25" Click="BackButton_Click" Margin="0,1,0,0" FontFamily="Segoe UI" FontSize="12" Width="299"/>
                 </Grid>
             </TabItem>
 
 
         </TabControl>
-        <!--<ComboBox x:Name="cmbox_dataSelection" Visibility="Hidden" SelectionChanged="cmbox_dataSelection_SelectionChanged" FontSize="15" FontWeight="Light"  HorizontalAlignment="Left" Margin="10,191,0,0"  VerticalAlignment="Top" Width="233" Height="32"/>-->
-        <Label Name="lbl_dataSelection" Content="Выберите ЭД" Visibility="Hidden" HorizontalAlignment="Left" Margin="10,165,0,0" VerticalAlignment="Top" Width="212"/>
         <!--<Button x:Name="btn_openFile" Click="btn_openFile_Click" Content="Открыть файл" HorizontalAlignment="Left" Height="29" Margin="27,39,0,0" VerticalAlignment="Top" Width="195" />-->
+        <!--<ComboBox x:Name="cmbox_dataSelection" Visibility="Hidden" SelectionChanged="cmbox_dataSelection_SelectionChanged" FontSize="15" FontWeight="Light"  HorizontalAlignment="Left" Margin="10,191,0,0"  VerticalAlignment="Top" Width="233" Height="32"/>-->
+        <Label x:Name="lbl_dataSelection" Content="Выберите ЭД" Visibility="Hidden" HorizontalAlignment="Left" Margin="10,165,0,0" VerticalAlignment="Top" Width="212"/>
+        <Button x:Name="PopUpButton" Content="🞃" HorizontalAlignment="Right" Margin="0,23,0,0" VerticalAlignment="Top" Width="23" Height="21" FontSize="11" Click="btn_PopUp_Click"/>
 
     </Grid>
 </Window> 

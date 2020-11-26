@@ -9,7 +9,7 @@ namespace Obotudavanie.Classes
     public class Oborudovanie
     {
         [BsonId]
-        public Attribute<int> InvNum_OsnovnSredstva { get; set; }
+        public Attribute<long> InvNum_OsnovnSredstva { get; set; }
         public Attribute<string> Name_OsnovnSredstva { get; set; }
         public Attribute<int> ShifrByCalssificator_OsnovnSredstva { get; set; }
         public Attribute<string> RUP_PartName { get; set; }
@@ -21,7 +21,7 @@ namespace Obotudavanie.Classes
 
         public Oborudovanie()
         {
-            InvNum_OsnovnSredstva = new Attribute<int> { DefValue = 0, EdIzm = "", Name = "Инвентарный номер основного средства ", Type = "Целое", Value = 0 };
+            InvNum_OsnovnSredstva = new Attribute<long> { DefValue = 0, EdIzm = "", Name = "Инвентарный номер основного средства ", Type = "Целое", Value = 0 };
             Name_OsnovnSredstva = new Attribute<string> { DefValue = "", EdIzm = "", Name = "Наименование основного средства ", Type = "Текст", Value = "" };
             ShifrByCalssificator_OsnovnSredstva = new Attribute<int> { DefValue = 0, EdIzm = "", Name = "Шифр основного средства по классификатору", Type = "Целое", Value = 0 };
             RUP_PartName = new Attribute<string> { DefValue = "", EdIzm = "", Name = "Наименование подразделения РУП", Type = "Текст", Value = "" };
@@ -33,7 +33,6 @@ namespace Obotudavanie.Classes
             Name_OsnovnSredstva.Value = "Оборудование";
 
         }
-
 
     }
 }
